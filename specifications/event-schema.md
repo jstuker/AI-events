@@ -137,7 +137,8 @@ event_price_currency → schema:offers.priceCurrency
 event_low_price      → schema:offers.lowPrice
 event_high_price     → schema:offers.highPrice
 event_price_availability → schema:offers.availability
-event_image_1x1      → schema:image
+event_image_1x1      → schema:image (Square, 1:1)
+event_image_16x9     → schema:image (Wide, 16:9)
 event_attendance_mode → schema:eventAttendanceMode
 location_name        → schema:location.name
 location_address     → schema:location.address.streetAddress
