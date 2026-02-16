@@ -28,8 +28,9 @@
       padding: 1rem;
     }
     header { padding: 1.5rem 0; border-bottom: 2px solid var(--color-border); margin-bottom: 2rem; }
-    header h1 { font-size: 1.5rem; }
+    header h1 { font-size: 2.25rem; font-weight: 800; }
     header h1 a { color: var(--color-text); text-decoration: none; }
+    header .tagline { color: var(--color-muted); font-size: 1.125rem; margin-top: 0.25rem; }
     nav { margin-top: 0.5rem; }
     nav a { color: var(--color-primary); margin-right: 1rem; text-decoration: none; }
     main { min-height: 60vh; }
@@ -39,9 +40,9 @@
 </head>
 <body>
   <header>
-    <h1><a href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a></h1>
+    <h1><a href="{{ .Site.BaseURL }}">Swiss {ai} Weeks — Events</a></h1>
+    <p class="tagline">The definitive source of AI events in Switzerland</p>
     <nav>
-      <a href="{{ "events/" | relURL }}">All Events</a>
       <a href="{{ "tags/" | relURL }}">Tags</a>
       <a href="{{ "cities/" | relURL }}">Cities</a>
       <a href="{{ "locations/" | relURL }}">Locations</a>
