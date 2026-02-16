@@ -12,6 +12,7 @@ Thumbs.db
 Desktop.ini
 
 # Editor / IDE files
+.claude/
 .vscode/
 .idea/
 *.swp
@@ -31,6 +32,7 @@ yarn.lock
 # Admin panel
 admin/node_modules/
 admin/dist/
+admin/coverage/
 
 # Logs
 *.log
