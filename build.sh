@@ -14,7 +14,7 @@ main() {
   HUGO_VERSION=0.155.3
   NODE_VERSION=24.13.1
 
-  export TZ=Europe/Oslo
+  export TZ=Europe/Zurich
 
   # Install Dart Sass
   echo "Installing Dart Sass ${DART_SASS_VERSION}..."
