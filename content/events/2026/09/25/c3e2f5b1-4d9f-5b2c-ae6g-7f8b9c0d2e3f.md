@@ -26,8 +26,8 @@ event_language: ["de"]
 event_attendance_mode: "presence"
 event_target_audience: "Manufacturing engineers, CTOs, operations managers"
 
-location_name: "Olma Messen St. Gallen"
-location_address: "Splügenstrasse 12, 9008 St. Gallen"
+location_name: "Olma Messen St.Gallen"
+location_address: "Splügenstrasse 12, 9008 St.Gallen"
 
 organizer_name: "Swiss Manufacturing AI Alliance"
 organizer_url: "https://example.com/smaia"
@@ -37,8 +37,8 @@ featured_type: ""
 tags: ["seminar", "industry", "manufacturing"]
 publication_channels: ["saiw"]
 
-locations: ["Olma Messen St. Gallen"]
-cities: ["St. Gallen"]
+locations: ["Olma Messen St.Gallen"]
+cities: ["St.Gallen"]
 organizers: ["Swiss Manufacturing AI Alliance"]
 ---
 
