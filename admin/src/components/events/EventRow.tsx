@@ -4,6 +4,8 @@ import { StatusBadge } from './StatusBadge'
 
 interface EventRowProps {
   readonly event: Event
+  readonly isSelected?: boolean
+  readonly onToggle?: (id: string) => void
 }
 
 function formatDate(dateStr: string): string {
@@ -19,9 +21,20 @@ function formatDate(dateStr: string): string {
   }
 }
 
-export function EventRow({ event }: EventRowProps) {
+export function EventRow({ event, isSelected, onToggle }: EventRowProps) {
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50">
+      {onToggle && (
+        <td className="px-4 py-3">
+          <input
+            type="checkbox"
+            checked={isSelected ?? false}
+            onChange={() => onToggle(event.event_id)}
+            className="h-4 w-4 rounded border-gray-300 text-blue-600"
+            aria-label={`Select ${event.event_name}`}
+          />
+        </td>
+      )}
       <td className="px-4 py-3 text-sm font-medium text-gray-900">
         <Link
           to={`/events/${event.event_id}`}
