@@ -1,27 +1,31 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { EventRow } from './EventRow'
 import { createEvent } from '../../test/fixtures'
 
 function renderInTable(ui: React.ReactElement) {
   return render(
-    <table>
-      <tbody>{ui}</tbody>
-    </table>,
+    <MemoryRouter>
+      <table>
+        <tbody>{ui}</tbody>
+      </table>
+    </MemoryRouter>,
   )
 }
 
 describe('EventRow', () => {
-  it('renders event name', () => {
-    const event = createEvent({ event_name: 'AI Summit 2026' })
+  it('renders event name as link', () => {
+    const event = createEvent({ event_name: 'AI Summit 2026', event_id: 'evt-001' })
     renderInTable(<EventRow event={event} />)
-    expect(screen.getByText('AI Summit 2026')).toBeInTheDocument()
+    const link = screen.getByText('AI Summit 2026')
+    expect(link).toBeInTheDocument()
+    expect(link.closest('a')).toHaveAttribute('href', '/events/evt-001')
   })
 
   it('renders formatted start date', () => {
     const event = createEvent({ event_start_date: '2026-03-15' })
     renderInTable(<EventRow event={event} />)
-    // en-CH locale formats as "15 Mar 2026"
     expect(screen.getByText(/15 Mar 2026/)).toBeInTheDocument()
   })
 

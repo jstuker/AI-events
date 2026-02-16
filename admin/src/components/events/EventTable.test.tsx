@@ -1,8 +1,13 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import userEvent from '@testing-library/user-event'
 import { EventTable } from './EventTable'
 import { createEvents } from '../../test/fixtures'
+
+function renderWithRouter(ui: React.ReactElement) {
+  return render(<MemoryRouter>{ui}</MemoryRouter>)
+}
 
 describe('EventTable', () => {
   const events = createEvents()
@@ -14,19 +19,19 @@ describe('EventTable', () => {
   }
 
   it('renders empty state when no events', () => {
-    render(<EventTable {...defaultProps} events={[]} />)
+    renderWithRouter(<EventTable {...defaultProps} events={[]} />)
     expect(screen.getByText(/no events found/i)).toBeInTheDocument()
   })
 
   it('renders event rows for each event', () => {
-    render(<EventTable {...defaultProps} />)
+    renderWithRouter(<EventTable {...defaultProps} />)
     expect(screen.getByText('Zurich AI Hackathon')).toBeInTheDocument()
     expect(screen.getByText('Geneva ML Workshop')).toBeInTheDocument()
     expect(screen.getByText('Bern Data Summit')).toBeInTheDocument()
   })
 
   it('renders sortable column headers', () => {
-    render(<EventTable {...defaultProps} />)
+    renderWithRouter(<EventTable {...defaultProps} />)
     expect(screen.getByText('Name')).toBeInTheDocument()
     expect(screen.getByText('Date')).toBeInTheDocument()
     expect(screen.getByText('Location')).toBeInTheDocument()
@@ -35,14 +40,14 @@ describe('EventTable', () => {
 
   it('calls onSort when clicking a sortable header', async () => {
     const onSort = vi.fn()
-    render(<EventTable {...defaultProps} onSort={onSort} />)
+    renderWithRouter(<EventTable {...defaultProps} onSort={onSort} />)
 
     await userEvent.click(screen.getByText('Name'))
     expect(onSort).toHaveBeenCalledWith('event_name')
   })
 
   it('renders a table element', () => {
-    render(<EventTable {...defaultProps} />)
+    renderWithRouter(<EventTable {...defaultProps} />)
     expect(screen.getByRole('table')).toBeInTheDocument()
   })
 })

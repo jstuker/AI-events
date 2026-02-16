@@ -3,6 +3,7 @@ import { AppLayout } from './components/layout/AppLayout'
 import { LoginPage } from './pages/LoginPage'
 import { CallbackPage } from './pages/CallbackPage'
 import { EventListPage } from './pages/EventListPage'
+import { EventDetailPage } from './pages/EventDetailPage'
 
 export function AppRouter() {
   return (
@@ -11,6 +12,7 @@ export function AppRouter() {
       <Route path="/callback" element={<CallbackPage />} />
       <Route element={<AppLayout />}>
         <Route path="/events" element={<EventListPage />} />
+        <Route path="/events/:eventId" element={<EventDetailPage />} />
         <Route path="/" element={<Navigate to="/events" replace />} />
       </Route>
       <Route path="*" element={<Navigate to="/events" replace />} />
