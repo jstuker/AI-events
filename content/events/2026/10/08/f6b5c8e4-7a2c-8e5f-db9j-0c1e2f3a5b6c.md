@@ -37,6 +37,7 @@ tags: ["meetup", "generative AI", "LLM"]
 publication_channels: ["saiw"]
 
 locations: ["Google Zurich"]
+cities: ["Zürich"]
 organizers: ["Zurich AI Community"]
 ---
 

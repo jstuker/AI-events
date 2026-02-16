@@ -38,6 +38,7 @@ tags: ["seminar", "industry", "manufacturing"]
 publication_channels: ["saiw"]
 
 locations: ["Olma Messen St. Gallen"]
+cities: ["St. Gallen"]
 organizers: ["Swiss Manufacturing AI Alliance"]
 ---
 

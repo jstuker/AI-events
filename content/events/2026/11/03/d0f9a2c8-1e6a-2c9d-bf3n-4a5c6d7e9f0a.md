@@ -38,6 +38,7 @@ tags: ["hackathon", "robotics", "hardware"]
 publication_channels: ["saiw"]
 
 locations: ["Basel Innovation Hub"]
+cities: ["Basel"]
 organizers: ["Basel Finance & Tech"]
 ---
 

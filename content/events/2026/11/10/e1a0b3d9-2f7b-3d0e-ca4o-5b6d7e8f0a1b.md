@@ -39,6 +39,7 @@ tags: ["summit", "ethics", "governance", "responsible AI"]
 publication_channels: ["saiw", "kickstart"]
 
 locations: ["Online"]
+cities: ["Online"]
 organizers: ["Swiss Digital Initiative"]
 ---
 

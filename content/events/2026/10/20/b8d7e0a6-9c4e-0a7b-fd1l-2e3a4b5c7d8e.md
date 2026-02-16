@@ -37,6 +37,7 @@ tags: ["workshop", "education", "EdTech"]
 publication_channels: ["saiw"]
 
 locations: ["Université de Lausanne"]
+cities: ["Lausanne"]
 organizers: ["EdTech Suisse"]
 ---
 

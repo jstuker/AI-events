@@ -39,6 +39,7 @@ tags: ["conference", "NLP", "research"]
 publication_channels: ["saiw", "kickstart"]
 
 locations: ["Universität Bern"]
+cities: ["Bern"]
 organizers: ["Swiss NLP Association"]
 ---
 

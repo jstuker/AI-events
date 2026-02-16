@@ -39,6 +39,7 @@ tags: ["conference", "machine learning", "research"]
 publication_channels: ["saiw"]
 
 locations: ["ETH Zurich"]
+cities: ["Zürich"]
 organizers: ["ETH AI Center"]
 ---
 

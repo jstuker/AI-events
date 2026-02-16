@@ -38,6 +38,7 @@ tags: ["seminar", "law", "regulation"]
 publication_channels: ["saiw"]
 
 locations: ["Maison de la Paix"]
+cities: ["Genève"]
 organizers: ["Geneva AI Lab"]
 ---
 

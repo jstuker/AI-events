@@ -37,6 +37,7 @@ tags: ["lecture", "AI for good", "sustainability"]
 publication_channels: ["saiw"]
 
 locations: ["Online"]
+cities: ["Online"]
 organizers: ["EPFL AI4Good Initiative"]
 ---
 

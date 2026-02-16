@@ -37,6 +37,7 @@ tags: ["meetup", "innovation", "networking"]
 publication_channels: ["saiw"]
 
 locations: ["LAC Lugano Arte e Cultura"]
+cities: ["Lugano"]
 organizers: ["Ticino Tech Hub"]
 ---
 

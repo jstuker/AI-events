@@ -39,6 +39,7 @@ tags: ["conference", "networking", "policy"]
 publication_channels: ["saiw", "kickstart"]
 
 locations: ["Kursaal Bern"]
+cities: ["Bern"]
 organizers: ["Swiss {ai} Weeks"]
 ---
 

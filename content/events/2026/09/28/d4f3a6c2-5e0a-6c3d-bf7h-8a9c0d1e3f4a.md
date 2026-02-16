@@ -39,6 +39,7 @@ tags: ["conference", "blockchain", "Web3"]
 publication_channels: ["saiw", "kickstart"]
 
 locations: ["Palazzo dei Congressi Lugano"]
+cities: ["Lugano"]
 organizers: ["Ticino Tech Hub"]
 ---
 
