@@ -4,8 +4,10 @@ import type { Event } from '../types/event'
 import { useAuth } from '../hooks/useAuth'
 import { fetchAllEvents } from '../services/event-service'
 import { computeDashboardStats } from '../utils/dashboard-stats'
+import { findAllDuplicateGroups } from '../utils/duplicate-detection'
 import { StatCard } from '../components/dashboard/StatCard'
 import { UpcomingEventsTable } from '../components/dashboard/UpcomingEventsTable'
+import { DuplicatesPanel } from '../components/dashboard/DuplicatesPanel'
 
 export function DashboardPage() {
   const { token } = useAuth()
@@ -54,12 +56,13 @@ export function DashboardPage() {
   }
 
   const stats = computeDashboardStats(events)
+  const duplicateGroups = findAllDuplicateGroups(events)
 
   return (
     <div>
       <h2 className="mb-6 text-xl font-semibold text-gray-900">Dashboard</h2>
 
-      <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         <StatCard
           label="Total Events"
           value={stats.total}
@@ -76,6 +79,11 @@ export function DashboardPage() {
           value={stats.published}
           linkTo="/events?status=published"
         />
+        <StatCard
+          label="Duplicates"
+          value={duplicateGroups.length}
+          highlight={duplicateGroups.length > 0}
+        />
         <StatCard label="This Week" value={stats.submissionsThisWeek} />
         <StatCard label="This Month" value={stats.submissionsThisMonth} />
       </div>
@@ -86,6 +94,12 @@ export function DashboardPage() {
             events={stats.reviewQueue}
             title="Review Queue"
           />
+        </div>
+      )}
+
+      {duplicateGroups.length > 0 && (
+        <div className="mb-6">
+          <DuplicatesPanel groups={duplicateGroups} />
         </div>
       )}
 

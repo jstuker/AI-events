@@ -10,8 +10,12 @@ import { EventDetailView } from '../components/events/EventDetailView'
 import { EventEditForm } from '../components/events/EventEditForm'
 import { EventHistory } from '../components/events/EventHistory'
 import { StatusTransitionControl } from '../components/events/StatusTransitionControl'
+import { DuplicateAlert } from '../components/events/DuplicateAlert'
 import { SaveDialog } from '../components/ui/SaveDialog'
 import { getNextStatuses } from '../utils/status-workflow'
+import { fetchAllEvents } from '../services/event-service'
+import { findDuplicatesForEvent } from '../utils/duplicate-detection'
+import type { DuplicateMatch } from '../utils/duplicate-detection'
 
 type Tab = 'details' | 'history'
 
@@ -49,6 +53,7 @@ export function EventDetailPage() {
   const [commits, setCommits] = useState<readonly CommitEntry[]>([])
   const [isLoadingHistory, setIsLoadingHistory] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
+  const [duplicateMatches, setDuplicateMatches] = useState<readonly DuplicateMatch[]>([])
 
   const form = useEventForm(event ? eventToFormData(event) : EMPTY_FORM_DATA)
 
@@ -93,6 +98,21 @@ export function EventDetailPage() {
       loadHistory()
     }
   }, [activeTab, commits.length, loadHistory])
+
+  useEffect(() => {
+    if (!token || !event) return
+    let cancelled = false
+    fetchAllEvents(token)
+      .then((allEvents) => {
+        if (!cancelled) {
+          setDuplicateMatches(findDuplicatesForEvent(event, allEvents))
+        }
+      })
+      .catch(() => {
+        // Duplicate detection is non-critical
+      })
+    return () => { cancelled = true }
+  }, [token, event])
 
   const handleEdit = () => {
     if (event) {
@@ -234,6 +254,8 @@ export function EventDetailPage() {
         onTransition={handleStatusTransition}
         isTransitioning={isTransitioning}
       />
+
+      <DuplicateAlert matches={duplicateMatches} />
 
       {saveSuccess && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">

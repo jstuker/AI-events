@@ -62,6 +62,7 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Total Events')).toBeInTheDocument()
     expect(screen.getByText('Pending Review')).toBeInTheDocument()
     expect(screen.getByText('Published')).toBeInTheDocument()
+    expect(screen.getByText('Duplicates')).toBeInTheDocument()
     expect(screen.getByText('This Week')).toBeInTheDocument()
     expect(screen.getByText('This Month')).toBeInTheDocument()
   })
@@ -114,6 +115,29 @@ describe('DashboardPage', () => {
 
     const reviewLink = screen.getByRole('link', { name: 'Review Queue' })
     expect(reviewLink).toHaveAttribute('href', '/events?status=review')
+  })
+
+  it('shows duplicates panel when duplicate events exist', async () => {
+    const events = [
+      createEvent({
+        event_id: '1',
+        event_name: 'Zurich AI Hackathon',
+        event_start_date: '2099-06-15',
+        location_name: 'Zurich',
+      }),
+      createEvent({
+        event_id: '2',
+        event_name: 'Zürich AI Hackathon',
+        event_start_date: '2099-06-15',
+        location_name: 'Zurich',
+      }),
+    ]
+    mockFetchAllEvents.mockResolvedValueOnce(events)
+    renderDashboard()
+
+    await waitFor(() => {
+      expect(screen.getByText(/Potential Duplicates/)).toBeInTheDocument()
+    })
   })
 
   it('hides review queue section when no review/pending events', async () => {
