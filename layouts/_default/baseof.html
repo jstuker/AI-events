@@ -27,12 +27,23 @@
       margin: 0 auto;
       padding: 1rem;
     }
-    header { padding: 1.5rem 0; border-bottom: 2px solid var(--color-border); margin-bottom: 2rem; }
+    header { padding: 1.5rem 0; margin-bottom: 2rem; }
     header h1 { font-size: 2.25rem; font-weight: 800; }
     header h1 a { color: var(--color-text); text-decoration: none; }
     header .tagline { color: var(--color-muted); font-size: 1.125rem; margin-top: 0.25rem; }
-    nav { margin-top: 0.5rem; }
-    nav a { color: var(--color-primary); margin-right: 1rem; text-decoration: none; }
+    nav.tabs { display: flex; gap: 0; margin-top: 1rem; border-bottom: 2px solid var(--color-border); }
+    nav.tabs a {
+      padding: 0.5rem 1.25rem;
+      color: var(--color-muted);
+      text-decoration: none;
+      border: 2px solid transparent;
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      margin-bottom: -2px;
+      transition: color 0.2s, background 0.2s;
+    }
+    nav.tabs a:hover { color: var(--color-primary); background: #f9fafb; }
+    nav.tabs a.active { color: var(--color-text); font-weight: 700; background: var(--color-bg); border-color: var(--color-border); }
     main { min-height: 60vh; }
     footer { margin-top: 3rem; padding: 1.5rem 0; border-top: 1px solid var(--color-border); color: var(--color-muted); font-size: 0.875rem; }
     .back-link { display: inline-block; margin-bottom: 1.5rem; color: var(--color-primary); text-decoration: none; }
@@ -42,11 +53,11 @@
   <header>
     <h1><a href="{{ .Site.BaseURL }}">Swiss {ai} Weeks — Events</a></h1>
     <p class="tagline">The definitive source of AI events in Switzerland</p>
-    <nav>
-      <a href="{{ "tags/" | relURL }}">Tags</a>
-      <a href="{{ "cities/" | relURL }}">Cities</a>
-      <a href="{{ "locations/" | relURL }}">Locations</a>
-      <a href="{{ "organizers/" | relURL }}">Organizers</a>
+    <nav class="tabs">
+      <a href="{{ "tags/" | relURL }}"{{ if hasPrefix .RelPermalink "/tags" }} class="active"{{ end }}>Tags</a>
+      <a href="{{ "cities/" | relURL }}"{{ if hasPrefix .RelPermalink "/cities" }} class="active"{{ end }}>Cities</a>
+      <a href="{{ "locations/" | relURL }}"{{ if hasPrefix .RelPermalink "/locations" }} class="active"{{ end }}>Locations</a>
+      <a href="{{ "organizers/" | relURL }}"{{ if hasPrefix .RelPermalink "/organizers" }} class="active"{{ end }}>Organizers</a>
     </nav>
   </header>
   <main>

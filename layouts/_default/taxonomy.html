@@ -2,8 +2,6 @@
 
 {{ define "main" }}
 <a href="{{ "/" | relURL }}" class="back-link">&larr; All Events</a>
-<h1>{{ .Title }}</h1>
-{{ with .Content }}<div class="section-description">{{ . }}</div>{{ end }}
 
 {{ if eq .Kind "term" }}
 {{/* Term page: list events belonging to this term */}}
