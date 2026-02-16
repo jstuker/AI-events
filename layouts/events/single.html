@@ -1,0 +1,117 @@
+{{ define "title" }}{{ .Params.event_name }} — {{ .Site.Title }}{{ end }}
+
+{{ define "head" }}
+{{/* schema.org Event JSON-LD */}}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Event",
+  "name": {{ .Params.event_name | jsonify }},
+  "description": {{ .Params.event_description | jsonify }},
+  "startDate": {{ .Params.event_start_date | jsonify }},
+  "endDate": {{ .Params.event_end_date | jsonify }},
+  {{- with .Params.event_image_1x1 }}
+  "image": {{ . | jsonify }},
+  {{- end }}
+  "eventAttendanceMode": "https://schema.org/{{ if eq .Params.event_attendance_mode "online" }}OnlineEventAttendanceMode{{ else if eq .Params.event_attendance_mode "hybrid" }}MixedEventAttendanceMode{{ else }}OfflineEventAttendanceMode{{ end }}",
+  "location": {
+    "@type": "Place",
+    "name": {{ .Params.location_name | jsonify }},
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": {{ .Params.location_address | jsonify }}
+    }
+  },
+  {{- with .Params.organizer_name }}
+  "organizer": {
+    "@type": "Organization",
+    "name": {{ . | jsonify }}{{ with $.Params.organizer_url }},
+    "url": {{ . | jsonify }}{{ end }}
+  },
+  {{- end }}
+  "offers": {
+    "@type": "Offer",
+    "url": {{ .Params.event_url | jsonify }},
+    {{- if eq .Params.event_price_type "free" }}
+    "price": "0",
+    "priceCurrency": "CHF"
+    {{- else if eq .Params.event_price_type "paid" }}
+    "price": {{ .Params.event_price | jsonify }},
+    "priceCurrency": {{ .Params.event_price_currency | jsonify }}
+    {{- else if eq .Params.event_price_type "range" }}
+    "lowPrice": {{ .Params.event_low_price | jsonify }},
+    "highPrice": {{ .Params.event_high_price | jsonify }},
+    "priceCurrency": {{ .Params.event_price_currency | jsonify }}
+    {{- end }},
+    "availability": "https://schema.org/{{ .Params.event_price_availability | default "InStock" }}"
+  }
+}
+</script>
+{{ end }}
+
+{{ define "main" }}
+<style>
+  .event-detail { max-width: 800px; }
+  .event-detail h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+  .event-header-meta { color: var(--color-muted); font-size: 0.875rem; margin-bottom: 1.5rem; }
+  .event-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; padding: 1rem; background: #f9fafb; border-radius: 8px; }
+  .event-info dt { font-weight: 600; font-size: 0.75rem; text-transform: uppercase; color: var(--color-muted); }
+  .event-info dd { margin-top: 0.25rem; }
+  .event-body { line-height: 1.8; }
+  .event-body h2 { margin-top: 1.5rem; margin-bottom: 0.5rem; }
+  .event-body ul, .event-body ol { margin-left: 1.5rem; margin-bottom: 1rem; }
+  .event-cta { display: inline-block; background: var(--color-primary); color: #fff; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 1.5rem; }
+  .event-cta:hover { opacity: 0.9; }
+  .badge-large { display: inline-block; background: var(--color-featured); color: #fff; font-size: 0.875rem; padding: 0.25rem 0.75rem; border-radius: 4px; font-weight: 600; margin-bottom: 0.5rem; }
+  .back-link { display: inline-block; margin-bottom: 1.5rem; color: var(--color-primary); text-decoration: none; }
+</style>
+
+<article class="event-detail">
+  <a href="{{ "events/" | relURL }}" class="back-link">&larr; All Events</a>
+
+  {{ if and .Params.featured (eq .Params.featured_type "badge") }}<span class="badge-large">Featured Event</span>{{ end }}
+  <h1>{{ .Params.event_name }}</h1>
+  <div class="event-header-meta">
+    {{ with .Params.organizer_name }}Organized by <strong>{{ . }}</strong> &middot; {{ end }}
+    {{ .Params.event_attendance_mode | title }}
+  </div>
+
+  <dl class="event-info">
+    <div>
+      <dt>Date</dt>
+      <dd>{{ dateFormat "Monday, 2 January 2006" .Params.event_start_date }}</dd>
+    </div>
+    <div>
+      <dt>Time</dt>
+      <dd>{{ dateFormat "15:04" .Params.event_start_date }} – {{ dateFormat "15:04" .Params.event_end_date }}</dd>
+    </div>
+    <div>
+      <dt>Location</dt>
+      <dd>{{ .Params.location_name }}<br>{{ .Params.location_address }}</dd>
+    </div>
+    <div>
+      <dt>Price</dt>
+      <dd>
+        {{ if eq .Params.event_price_type "free" }}Free
+        {{ else if eq .Params.event_price_type "paid" }}{{ .Params.event_price_currency }} {{ .Params.event_price }}
+        {{ else if eq .Params.event_price_type "range" }}{{ .Params.event_price_currency }} {{ .Params.event_low_price }}–{{ .Params.event_high_price }}
+        {{ end }}
+      </dd>
+    </div>
+    {{ with .Params.event_language }}
+    <div>
+      <dt>Languages</dt>
+      <dd>{{ delimit . ", " }}</dd>
+    </div>
+    {{ end }}
+  </dl>
+
+  <div class="event-body">
+    {{ .Content }}
+  </div>
+
+  {{ with .Params.event_url }}
+  <a href="{{ . }}" class="event-cta" target="_blank" rel="noopener">Register / More Info</a>
+  {{ end }}
+</article>
+{{ end }}

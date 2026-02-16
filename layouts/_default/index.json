@@ -1,0 +1,24 @@
+{{- $events := where (where .Site.RegularPages "Section" "events") "Params.status" "published" -}}
+{{- $result := slice -}}
+{{- range $events -}}
+  {{- $event := dict
+    "event_id" .Params.event_id
+    "event_name" .Params.event_name
+    "event_description" .Params.event_description
+    "event_start_date" .Params.event_start_date
+    "event_end_date" .Params.event_end_date
+    "event_url" .Params.event_url
+    "event_price_type" .Params.event_price_type
+    "event_price_currency" .Params.event_price_currency
+    "location_name" .Params.location_name
+    "location_address" .Params.location_address
+    "organizer_name" .Params.organizer_name
+    "event_attendance_mode" .Params.event_attendance_mode
+    "event_language" .Params.event_language
+    "tags" .Params.tags
+    "featured" .Params.featured
+    "permalink" .Permalink
+  -}}
+  {{- $result = $result | append $event -}}
+{{- end -}}
+{{- $result | jsonify (dict "indent" "  ") -}}

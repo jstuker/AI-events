@@ -1,0 +1,44 @@
+{{ define "title" }}{{ .Title }} — {{ .Site.Title }}{{ end }}
+
+{{ define "main" }}
+<h1>{{ .Title }}</h1>
+{{ with .Content }}<div class="section-description">{{ . }}</div>{{ end }}
+
+<style>
+  .events-list { list-style: none; display: grid; gap: 1.5rem; margin-top: 1.5rem; }
+  .event-card {
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    transition: box-shadow 0.2s;
+  }
+  .event-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .event-card.featured { border-left: 4px solid var(--color-featured); }
+  .event-card h2 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+  .event-card h2 a { color: var(--color-text); text-decoration: none; }
+  .event-card h2 a:hover { color: var(--color-primary); }
+  .event-meta { color: var(--color-muted); font-size: 0.875rem; display: flex; flex-wrap: wrap; gap: 1rem; }
+  .badge { display: inline-block; background: var(--color-featured); color: #fff; font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 600; }
+  .tag { display: inline-block; background: #f3f4f6; color: var(--color-muted); font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 4px; margin-right: 0.25rem; }
+</style>
+
+<ul class="events-list">
+  {{- range where .Pages "Params.status" "published" }}
+  <li class="event-card{{ if .Params.featured }} featured{{ end }}">
+    {{ if and .Params.featured (eq .Params.featured_type "badge") }}<span class="badge">Featured</span>{{ end }}
+    <h2><a href="{{ .Permalink }}">{{ .Params.event_name }}</a></h2>
+    <div class="event-meta">
+      <span>{{ dateFormat "2 Jan 2006, 15:04" .Params.event_start_date }}</span>
+      <span>{{ .Params.location_name }}</span>
+      {{ with .Params.event_attendance_mode }}<span>{{ . }}</span>{{ end }}
+      {{ if eq .Params.event_price_type "free" }}<span>Free</span>
+      {{ else if eq .Params.event_price_type "paid" }}<span>{{ .Params.event_price_currency }} {{ .Params.event_price }}</span>
+      {{ else if eq .Params.event_price_type "range" }}<span>{{ .Params.event_price_currency }} {{ .Params.event_low_price }}–{{ .Params.event_high_price }}</span>
+      {{ end }}
+    </div>
+    <p style="margin-top: 0.5rem;">{{ .Params.event_description | truncate 200 }}</p>
+    {{ with .Params.tags }}<div style="margin-top: 0.5rem;">{{ range . }}<span class="tag">{{ . }}</span>{{ end }}</div>{{ end }}
+  </li>
+  {{- end }}
+</ul>
+{{ end }}
