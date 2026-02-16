@@ -63,6 +63,15 @@ main() {
   echo "Building the site"
   hugo --gc --minify --baseURL "https://${VERCEL_PROJECT_PRODUCTION_URL}"
 
+  # Build the admin panel
+  echo "Building the admin panel..."
+  cd admin
+  npm ci
+  npm run build
+  cp -r dist/* ../public/admin/
+  cd ..
+  echo "Admin panel built successfully"
+
 }
 
 set -euo pipefail

@@ -1,4 +1,4 @@
-baseURL = 'https://jstuker.github.io/AI-events/'
+baseURL = '/'
 title = 'Swiss {ai} Weeks — Events'
 copyright = 'Event data published under CC-BY 4.0. Source code Apache 2.0.'
 buildFuture = true

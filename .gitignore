@@ -29,5 +29,9 @@ yarn.lock
 .env
 .env.*
 
+# Admin panel
+admin/node_modules/
+admin/dist/
+
 # Logs
 *.log
