@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import type { Event } from '../../types/event'
 import { StatusBadge } from './StatusBadge'
 
@@ -22,7 +23,13 @@ export function EventRow({ event }: EventRowProps) {
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50">
       <td className="px-4 py-3 text-sm font-medium text-gray-900">
-        {event.event_name}
+        <Link
+          to={`/events/${event.event_id}`}
+          state={{ filePath: event.filePath }}
+          className="text-blue-600 hover:text-blue-800 hover:underline"
+        >
+          {event.event_name}
+        </Link>
       </td>
       <td className="px-4 py-3 text-sm text-gray-600">
         {formatDate(event.event_start_date)}
