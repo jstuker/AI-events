@@ -5,67 +5,86 @@ import type {
   AttendanceMode,
   PriceAvailability,
   FeaturedType,
-} from './event'
+} from "./event";
 
 export interface EventFormData {
-  event_id: string
-  date: string
-  slug: string
-  status: EventStatus
-  source: string
-  created_at: string
-  updated_at: string
+  event_id: string;
+  date: string;
+  slug: string;
+  status: EventStatus;
+  source: string;
+  created_at: string;
+  updated_at: string;
 
-  contact_name: string
-  contact_email: string
-  contact_phone: string
+  contact_name: string;
+  contact_email: string;
+  contact_phone: string;
 
-  event_name: string
-  event_description: string
-  event_url: string
-  event_start_date: string
-  event_end_date: string
-  event_price_type: PriceType
-  event_price: number | null
-  event_price_currency: string
-  event_low_price: number | null
-  event_high_price: number | null
-  event_price_availability: PriceAvailability
-  event_image_1x1: string
-  event_image_16x9: string
-  event_language: string[]
-  event_attendance_mode: AttendanceMode
-  event_target_audience: string
+  event_name: string;
+  event_description: string;
+  event_url: string;
+  event_start_date: string;
+  event_start_time: string;
+  event_end_date: string;
+  event_end_time: string;
+  event_price_type: PriceType;
+  event_price: number | null;
+  event_price_currency: string;
+  event_low_price: number | null;
+  event_high_price: number | null;
+  event_price_availability: PriceAvailability;
+  event_image_1x1: string;
+  event_image_16x9: string;
+  event_language: string[];
+  event_attendance_mode: AttendanceMode;
+  event_target_audience: string;
 
-  location_name: string
-  location_address: string
+  location_name: string;
+  location_address: string;
 
-  organizer_name: string
-  organizer_url: string
+  organizer_name: string;
+  organizer_url: string;
 
-  featured: boolean
-  featured_type: FeaturedType | ''
-  tags: string[]
-  publication_channels: string[]
+  featured: boolean;
+  featured_type: FeaturedType | "";
+  tags: string[];
+  publication_channels: string[];
 
-  locations: string[]
-  cities: string[]
-  organizers: string[]
+  locations: string[];
+  cities: string[];
+  organizers: string[];
 
-  body: string
+  body: string;
 }
 
-export type ValidationErrors = Record<string, string>
+export type ValidationErrors = Record<string, string>;
 
 export interface CommitEntry {
-  readonly sha: string
-  readonly message: string
-  readonly author: string
-  readonly date: string
-  readonly url: string
+  readonly sha: string;
+  readonly message: string;
+  readonly author: string;
+  readonly date: string;
+  readonly url: string;
+}
+
+/** Split an ISO-8601 datetime string into date and time parts. */
+export function splitDateTime(iso: string): { date: string; time: string } {
+  const match = iso.match(/^(\d{4}-\d{2}-\d{2})(?:T(\d{2}:\d{2}))?/);
+  if (!match) return { date: iso, time: "" };
+  return { date: match[1]!, time: match[2] ?? "" };
+}
+
+/** Combine date and time parts into an ISO-8601 datetime string (Swiss timezone). */
+export function combineDateTime(date: string, time: string): string {
+  if (!date) return "";
+  if (!time) return date;
+  return `${date}T${time}:00+01:00`;
 }
 
 export function eventToFormData(event: Event): EventFormData {
+  const start = splitDateTime(event.event_start_date);
+  const end = splitDateTime(event.event_end_date);
+
   return {
     event_id: event.event_id,
     date: event.date,
@@ -82,8 +101,10 @@ export function eventToFormData(event: Event): EventFormData {
     event_name: event.event_name,
     event_description: event.event_description,
     event_url: event.event_url,
-    event_start_date: event.event_start_date,
-    event_end_date: event.event_end_date,
+    event_start_date: start.date,
+    event_start_time: start.time,
+    event_end_date: end.date,
+    event_end_time: end.time,
     event_price_type: event.event_price_type,
     event_price: event.event_price,
     event_price_currency: event.event_price_currency,
@@ -112,7 +133,7 @@ export function eventToFormData(event: Event): EventFormData {
     organizers: [...event.organizers],
 
     body: event.body,
-  }
+  };
 }
 
 export function formDataToEvent(form: EventFormData, filePath: string): Event {
@@ -132,8 +153,11 @@ export function formDataToEvent(form: EventFormData, filePath: string): Event {
     event_name: form.event_name,
     event_description: form.event_description,
     event_url: form.event_url,
-    event_start_date: form.event_start_date,
-    event_end_date: form.event_end_date,
+    event_start_date: combineDateTime(
+      form.event_start_date,
+      form.event_start_time,
+    ),
+    event_end_date: combineDateTime(form.event_end_date, form.event_end_time),
     event_price_type: form.event_price_type,
     event_price: form.event_price,
     event_price_currency: form.event_price_currency,
@@ -163,5 +187,5 @@ export function formDataToEvent(form: EventFormData, filePath: string): Event {
 
     body: form.body,
     filePath,
-  }
+  };
 }
