@@ -13,6 +13,7 @@ defaultContentLanguageInSubdir = false
   tag = 'tags'
   location = 'locations'
   organizer = 'organizers'
+  city = 'cities'
 
 # Languages — English first, others as stubs for future activation
 [languages]

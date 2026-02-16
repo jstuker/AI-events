@@ -45,6 +45,7 @@ featured_type: ""      # badge | accent_border | larger_card | position_boost
 tags: []               # also used as Hugo `tags` taxonomy
 publication_channels: ["saiw"]
 locations: []          # must contain [location_name] — Hugo taxonomy
+cities: []             # city extracted from location_address — Hugo taxonomy
 organizers: []         # must contain [organizer_name] — Hugo taxonomy
 ---
 

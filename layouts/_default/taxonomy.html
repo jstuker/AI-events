@@ -1,9 +1,11 @@
+{{ define "title" }}{{ .Title }} — {{ .Site.Title }}{{ end }}
+
 {{ define "main" }}
-<h1>{{ .Site.Title }}</h1>
-<p>{{ .Site.Params.description }}</p>
+<h1>{{ .Title }}</h1>
+{{ with .Content }}<div class="section-description">{{ . }}</div>{{ end }}
 
-<h2 style="margin-top: 2rem;">Upcoming Events</h2>
-
+{{ if eq .Kind "term" }}
+{{/* Term page: list events belonging to this term */}}
 <style>
   .events-list { list-style: none; display: grid; gap: 1.5rem; margin-top: 1.5rem; }
   .event-card {
@@ -22,8 +24,10 @@
   .tag { display: inline-block; background: #f3f4f6; color: var(--color-muted); font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 4px; margin-right: 0.25rem; }
 </style>
 
+{{ $published := where .Pages "Params.status" "published" }}
+{{ if $published }}
 <ul class="events-list">
-  {{- range where (where .Site.RegularPages "Section" "events") "Params.status" "published" }}
+  {{- range $published }}
   <li class="event-card{{ if .Params.featured }} featured{{ end }}">
     {{ if and .Params.featured (eq .Params.featured_type "badge") }}<span class="badge">Featured</span>{{ end }}
     <h2><a href="{{ .Permalink }}">{{ .Params.event_name }}</a></h2>
@@ -41,4 +45,46 @@
   </li>
   {{- end }}
 </ul>
+{{ else }}
+<p style="margin-top: 1.5rem; color: var(--color-muted);">No published events found.</p>
+{{ end }}
+
+{{ else }}
+{{/* Taxonomy overview page: list all terms with event counts */}}
+<style>
+  .taxonomy-list { list-style: none; display: grid; gap: 0.75rem; margin-top: 1.5rem; }
+  .taxonomy-item {
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: box-shadow 0.2s;
+  }
+  .taxonomy-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .taxonomy-item a { color: var(--color-text); text-decoration: none; font-weight: 500; }
+  .taxonomy-item a:hover { color: var(--color-primary); }
+  .taxonomy-count {
+    background: #f3f4f6;
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+</style>
+
+<ul class="taxonomy-list">
+  {{- range .Pages }}
+  {{ $count := len (where .Pages "Params.status" "published") }}
+  {{ if gt $count 0 }}
+  <li class="taxonomy-item">
+    <a href="{{ .Permalink }}">{{ .Title }}</a>
+    <span class="taxonomy-count">{{ $count }}</span>
+  </li>
+  {{ end }}
+  {{- end }}
+</ul>
+{{ end }}
 {{ end }}
