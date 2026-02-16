@@ -1,6 +1,7 @@
 {{ define "title" }}{{ .Title }} — {{ .Site.Title }}{{ end }}
 
 {{ define "main" }}
+<a href="{{ "events/" | relURL }}" class="back-link">&larr; All Events</a>
 <h1>{{ .Title }}</h1>
 {{ with .Content }}<div class="section-description">{{ . }}</div>{{ end }}
 

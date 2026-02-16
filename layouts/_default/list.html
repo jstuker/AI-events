@@ -1,4 +1,5 @@
 {{ define "main" }}
+<a href="{{ "events/" | relURL }}" class="back-link">&larr; All Events</a>
 <h1>{{ .Title }}</h1>
 {{ with .Content }}{{ . }}{{ end }}
 
