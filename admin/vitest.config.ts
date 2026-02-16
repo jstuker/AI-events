@@ -21,6 +21,7 @@ export default defineConfig({
         'src/contexts/**',
         'src/pages/**',
         'src/components/layout/**',
+        'src/components/events/form/**',
         'src/config/**',
         'src/hooks/useAuth.ts',
       ],
