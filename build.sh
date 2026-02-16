@@ -68,6 +68,7 @@ main() {
   cd admin
   npm ci
   npm run build
+  mkdir -p ../public/admin
   cp -r dist/* ../public/admin/
   cd ..
   echo "Admin panel built successfully"
