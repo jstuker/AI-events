@@ -1,17 +1,37 @@
-import { useMemo, useState, useCallback } from 'react'
-import type { Event, EventStatus } from '../types/event'
-import { applyAllFilters, type SortField, type SortDirection } from '../utils/event-filters'
+import { useMemo, useState, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
+import type { Event, EventStatus } from "../types/event";
+import {
+  applyAllFilters,
+  type SortField,
+  type SortDirection,
+} from "../utils/event-filters";
+
+const VALID_STATUSES: readonly string[] = [
+  "draft",
+  "review",
+  "pending",
+  "approved",
+  "published",
+  "archived",
+];
 
 export function useEventFilters(events: readonly Event[]) {
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<EventStatus | ''>('')
-  const [locationFilter, setLocationFilter] = useState('')
-  const [featuredFilter, setFeaturedFilter] = useState('')
-  const [sourceFilter, setSourceFilter] = useState('')
-  const [dateFrom, setDateFrom] = useState('')
-  const [dateTo, setDateTo] = useState('')
-  const [sortField, setSortField] = useState<SortField>('event_start_date')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
+  const [searchParams] = useSearchParams();
+  const initialStatus = searchParams.get("status") ?? "";
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<EventStatus | "">(
+    VALID_STATUSES.includes(initialStatus)
+      ? (initialStatus as EventStatus)
+      : "",
+  );
+  const [locationFilter, setLocationFilter] = useState("");
+  const [featuredFilter, setFeaturedFilter] = useState("");
+  const [sourceFilter, setSourceFilter] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [sortField, setSortField] = useState<SortField>("event_start_date");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
   const filteredEvents = useMemo(
     () =>
@@ -26,20 +46,31 @@ export function useEventFilters(events: readonly Event[]) {
         sortField,
         sortDirection,
       }),
-    [events, search, statusFilter, locationFilter, featuredFilter, sourceFilter, dateFrom, dateTo, sortField, sortDirection],
-  )
+    [
+      events,
+      search,
+      statusFilter,
+      locationFilter,
+      featuredFilter,
+      sourceFilter,
+      dateFrom,
+      dateTo,
+      sortField,
+      sortDirection,
+    ],
+  );
 
   const handleSort = useCallback(
     (field: SortField) => {
       if (field === sortField) {
-        setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'))
+        setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
       } else {
-        setSortField(field)
-        setSortDirection('asc')
+        setSortField(field);
+        setSortDirection("asc");
       }
     },
     [sortField],
-  )
+  );
 
   return {
     filteredEvents,
@@ -60,5 +91,5 @@ export function useEventFilters(events: readonly Event[]) {
     sortField,
     sortDirection,
     handleSort,
-  }
+  };
 }
