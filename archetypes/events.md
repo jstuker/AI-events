@@ -1,6 +1,7 @@
 ---
 # Internal metadata (system-managed)
 event_id: "{{ uuid }}"
+date: "{{ now.Format "2006-01-02T15:04:05+01:00" }}"
 status: "draft"
 source: "manual"
 created_at: "{{ now.Format "2006-01-02T15:04:05+01:00" }}"

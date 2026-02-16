@@ -1,6 +1,7 @@
 baseURL = 'https://jstuker.github.io/AI-events/'
 title = 'Swiss {ai} Weeks — Events'
 copyright = 'Event data published under CC-BY 4.0. Source code Apache 2.0.'
+buildFuture = true
 
 # Default language
 defaultContentLanguage = 'en'
@@ -40,7 +41,7 @@ defaultContentLanguageInSubdir = false
 
 # Permalinks for events
 [permalinks]
-  events = '/events/:year/:month/:day/:filename/'
+  events = '/events/:year/:month/:day/:contentbasename/'
 
 # Output formats
 [outputs]

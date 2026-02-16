@@ -1,0 +1,15 @@
+{{- $events := where .Pages "Params.status" "published" -}}
+{{- $result := slice -}}
+{{- range $events -}}
+  {{- $event := dict
+    "event_id" .Params.event_id
+    "event_name" .Params.event_name
+    "event_start_date" .Params.event_start_date
+    "event_end_date" .Params.event_end_date
+    "location_name" .Params.location_name
+    "organizer_name" .Params.organizer_name
+    "permalink" .Permalink
+  -}}
+  {{- $result = $result | append $event -}}
+{{- end -}}
+{{- $result | jsonify (dict "indent" "  ") -}}
