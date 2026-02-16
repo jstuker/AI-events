@@ -93,6 +93,7 @@ Configure these in Vercel project settings:
 | `VITE_GITHUB_CLIENT_ID` | GitHub OAuth App client ID | Yes |
 | `GITHUB_CLIENT_SECRET` | GitHub OAuth App client secret | Yes |
 | `HUGO_ENV` | Hugo environment (`production`) | No |
+| `VERCEL_PROJECT_PRODUCTION_URL` | Auto-set by Vercel for `--baseURL` | Auto |
 
 ### URL Routing
 

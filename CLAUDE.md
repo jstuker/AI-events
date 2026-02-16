@@ -9,12 +9,23 @@ Swiss {ai} Weeks Events Application — the definitive source of AI events in Sw
 ## Build & Development Commands
 
 ```bash
+# Hugo site (public website)
 hugo server              # Local dev server (http://localhost:1313)
 hugo server -D           # Include draft content
-hugo --minify            # Production build (Vercel build command)
+hugo --minify            # Production build
+./build.sh               # Full Vercel build (Hugo + admin panel)
+
+# Admin panel (admin/)
+cd admin && npm install   # Install dependencies
+npm run dev               # Dev server (http://localhost:5173)
+npm run build             # TypeScript check + production build
+npm run test:run          # Run all tests
+npm run test:coverage     # Coverage report (80% threshold)
+npm run lint              # ESLint check
+npm run lint:fix          # ESLint auto-fix
 ```
 
-Output directory: `public/`
+Output directory: `public/` (Hugo site + `public/admin/` for admin panel)
 
 ## Architecture
 
@@ -60,8 +71,8 @@ Events are Hugo content files with YAML frontmatter. Key conventions:
 ## Hugo Configuration
 
 - Config file: `hugo.toml`
-- Base URL: `https://jstuker.github.io/AI-events/` (will change to `ai-weeks.ch/events` for production)
+- Base URL: `/` in config, dynamically set to `https://${VERCEL_PROJECT_PRODUCTION_URL}` during build
 - Hugo version: v0.155.3+extended+withdeploy
 - `buildFuture = true` is required since events are inherently future-dated
-- Taxonomies: `tags`, `locations` (from `location_name`), `organizers` (from `organizer_name`)
+- Taxonomies: `tags`, `locations` (from `location_name`), `organizers` (from `organizer_name`), `cities`
 - Output formats: HTML, RSS, JSON for home and section pages
