@@ -2,10 +2,10 @@
 event_id: f2b1c4e0-3a8c-4e1f-db5p-6c7e8f9a1b2c
 date: 2026-02-17
 slug: ai-and-law-seminar-geneva
-status: review
+status: archived
 source: form
 created_at: 2026-02-17T19:00:00+01:00
-updated_at: 2026-02-16T17:12:32.878Z
+updated_at: 2026-02-16T17:14:42.028Z
 event_name: AI and Law — Seminar Geneva
 event_description: A seminar for legal professionals on the implications of AI in the Swiss legal system, covering IP, liability, data protection, and AI-assisted legal research.
 event_url: https://example.com/ai-law-seminar
