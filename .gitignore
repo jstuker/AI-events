@@ -22,7 +22,6 @@ Desktop.ini
 
 # Node (if using Hugo Pipes / PostCSS / Tailwind)
 node_modules/
-package-lock.json
 yarn.lock
 
 # Env / secrets
