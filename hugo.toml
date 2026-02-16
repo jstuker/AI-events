@@ -1,3 +1,69 @@
 baseURL = 'https://jstuker.github.io/AI-events/'
-languageCode = 'en-us'
-title = 'SaiW Events Application'
+title = 'Swiss {ai} Weeks — Events'
+copyright = 'Event data published under CC-BY 4.0. Source code Apache 2.0.'
+
+# Default language
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = false
+
+# Taxonomies
+[taxonomies]
+  tag = 'tags'
+  location = 'locations'
+  organizer = 'organizers'
+
+# Languages — English first, others as stubs for future activation
+[languages]
+  [languages.en]
+    languageCode = 'en'
+    languageName = 'English'
+    weight = 1
+    title = 'Swiss {ai} Weeks — Events'
+  [languages.de]
+    languageCode = 'de'
+    languageName = 'Deutsch'
+    weight = 2
+    disabled = true
+    title = 'Swiss {ai} Weeks — Events'
+  [languages.fr]
+    languageCode = 'fr'
+    languageName = 'Français'
+    weight = 3
+    disabled = true
+    title = 'Swiss {ai} Weeks — Événements'
+  [languages.it]
+    languageCode = 'it'
+    languageName = 'Italiano'
+    weight = 4
+    disabled = true
+    title = 'Swiss {ai} Weeks — Eventi'
+
+# Permalinks for events
+[permalinks]
+  events = '/events/:year/:month/:day/:filename/'
+
+# Output formats
+[outputs]
+  home = ['HTML', 'RSS', 'JSON']
+  section = ['HTML', 'RSS', 'JSON']
+
+# Markdown rendering
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = false
+
+# Build settings
+[build]
+  [build.buildStats]
+    enable = true
+
+# Sitemap settings
+[sitemap]
+  changefreq = 'weekly'
+  priority = 0.5
+
+# Params
+[params]
+  description = 'The definitive source of AI events in Switzerland'
+  timezone = 'Europe/Zurich'
