@@ -59,15 +59,15 @@ export function computeDashboardStats(
     isWithinDays(e.created_at, 30, now)
   ).length
 
-  const todayStr = now.toISOString().split('T')[0]
-  const upcoming = events
+  const todayStr = now.toISOString().slice(0, 10)
+  const upcoming = [...events]
     .filter((e) => e.event_start_date >= todayStr)
-    .toSorted((a, b) => a.event_start_date.localeCompare(b.event_start_date))
+    .sort((a, b) => a.event_start_date.localeCompare(b.event_start_date))
     .slice(0, 10)
 
-  const reviewQueue = events
+  const reviewQueue = [...events]
     .filter((e) => e.status === 'review' || e.status === 'pending')
-    .toSorted((a, b) => b.updated_at.localeCompare(a.updated_at))
+    .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
 
   return {
     total: events.length,

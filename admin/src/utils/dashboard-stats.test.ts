@@ -104,8 +104,8 @@ describe('computeDashboardStats', () => {
     const stats = computeDashboardStats(events, NOW)
 
     expect(stats.upcoming).toHaveLength(10)
-    expect(stats.upcoming[0].event_start_date).toBe('2026-03-01')
-    expect(stats.upcoming[9].event_start_date).toBe('2026-03-10')
+    expect(stats.upcoming[0]!.event_start_date).toBe('2026-03-01')
+    expect(stats.upcoming[9]!.event_start_date).toBe('2026-03-10')
   })
 
   it('excludes past events from upcoming', () => {
@@ -117,7 +117,7 @@ describe('computeDashboardStats', () => {
     const stats = computeDashboardStats(events, NOW)
 
     expect(stats.upcoming).toHaveLength(2)
-    expect(stats.upcoming[0].event_id).toBe('2')
+    expect(stats.upcoming[0]!.event_id).toBe('2')
   })
 
   it('includes events starting today in upcoming', () => {
@@ -150,9 +150,9 @@ describe('computeDashboardStats', () => {
     const stats = computeDashboardStats(events, NOW)
 
     expect(stats.reviewQueue).toHaveLength(3)
-    expect(stats.reviewQueue[0].event_id).toBe('2')
-    expect(stats.reviewQueue[1].event_id).toBe('3')
-    expect(stats.reviewQueue[2].event_id).toBe('1')
+    expect(stats.reviewQueue[0]!.event_id).toBe('2')
+    expect(stats.reviewQueue[1]!.event_id).toBe('3')
+    expect(stats.reviewQueue[2]!.event_id).toBe('1')
   })
 
   it('returns empty review queue when no review/pending events', () => {
