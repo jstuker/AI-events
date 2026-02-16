@@ -39,6 +39,7 @@ Events are Hugo content files with YAML frontmatter. Key conventions:
 - Internal metadata (`event_id`, `status`, `created_at`, `updated_at`, `source`) is system-managed, not organizer-submitted
 - `featured` and `featured_type` control visual prominence for paying partners
 - Every event **must** have a `date` field matching `event_start_date` — Hugo uses `date` for permalink `:year/:month/:day` tokens and for future-content gating
+- Every event **must** have a `slug` field — an ASCII-only, lowercase, hyphenated version of the event title (no diacritics, unicode, or `%` in URLs). Permalinks use `:slug`, e.g. `/events/2026/09/17/zurich-ai-hackathon-2026/`
 
 ## Key Technical Requirements
 
