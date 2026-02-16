@@ -2,8 +2,25 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "chmod a+x build.sh && ./build.sh",
   "outputDirectory": "public",
+  "framework": null,
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/admin/(.*)", "destination": "/admin/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/events/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=300, s-maxage=3600" }
+      ]
+    },
+    {
+      "source": "/admin/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" }
+      ]
+    }
   ]
 }
