@@ -1,19 +1,24 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { Event } from '../types/event'
+import type { Event, EventStatus } from '../types/event'
 import { useAuth } from '../hooks/useAuth'
 import { fetchAllEvents } from '../services/event-service'
 import { useEventFilters } from '../hooks/useEventFilters'
 import { usePagination } from '../hooks/usePagination'
+import { useSelection } from '../hooks/useSelection'
+import { bulkUpdateStatus } from '../services/bulk-status-service'
 import { EventTable } from '../components/events/EventTable'
 import { SearchBar } from '../components/events/SearchBar'
 import { FilterPanel } from '../components/events/FilterPanel'
 import { Pagination } from '../components/events/Pagination'
+import { BulkActionToolbar } from '../components/events/BulkActionToolbar'
 
 export function EventListPage() {
   const { token } = useAuth()
   const [allEvents, setAllEvents] = useState<readonly Event[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isProcessingBulk, setIsProcessingBulk] = useState(false)
+  const [bulkMessage, setBulkMessage] = useState<string | null>(null)
 
   const loadEvents = useCallback(async () => {
     if (!token) return
@@ -62,6 +67,48 @@ export function EventListPage() {
     setCurrentPage,
     setItemsPerPage,
   } = usePagination(filteredEvents)
+
+  const {
+    isSelected,
+    toggle,
+    selectAll,
+    clearSelection,
+    selectedCount,
+    selectedItems,
+  } = useSelection(filteredEvents, 'event_id')
+
+  const allSelected = selectedCount > 0 && selectedCount === filteredEvents.length
+
+  const handleSelectAll = () => {
+    if (allSelected) {
+      clearSelection()
+    } else {
+      selectAll()
+    }
+  }
+
+  const handleBulkAction = async (newStatus: EventStatus) => {
+    if (!token || selectedItems.length === 0) return
+    setIsProcessingBulk(true)
+    setBulkMessage(null)
+    try {
+      const result = await bulkUpdateStatus(token, selectedItems, newStatus)
+      const parts: string[] = []
+      if (result.succeeded.length > 0) {
+        parts.push(`${result.succeeded.length} event${result.succeeded.length > 1 ? 's' : ''} updated`)
+      }
+      if (result.failed.length > 0) {
+        parts.push(`${result.failed.length} failed`)
+      }
+      setBulkMessage(parts.join(', '))
+      clearSelection()
+      await loadEvents()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Bulk action failed')
+    } finally {
+      setIsProcessingBulk(false)
+    }
+  }
 
   // Extract unique values for filter dropdowns
   const locations = [...new Set(allEvents.map((e) => e.location_name).filter(Boolean))].sort()
@@ -125,12 +172,28 @@ export function EventListPage() {
         onDateToChange={setDateTo}
       />
 
+      <BulkActionToolbar
+        selectedCount={selectedCount}
+        onBulkAction={handleBulkAction}
+        isProcessing={isProcessingBulk}
+      />
+
+      {bulkMessage && (
+        <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3">
+          <p className="text-sm text-green-800">{bulkMessage}</p>
+        </div>
+      )}
+
       <div className="rounded-lg border border-gray-200 bg-white">
         <EventTable
           events={paginatedItems}
           sortField={sortField}
           sortDirection={sortDirection}
           onSort={handleSort}
+          isSelected={isSelected}
+          onToggle={toggle}
+          onSelectAll={handleSelectAll}
+          allSelected={allSelected}
         />
       </div>
 

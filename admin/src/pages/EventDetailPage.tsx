@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useLocation, Link } from 'react-router-dom'
-import type { Event } from '../types/event'
+import type { Event, EventStatus } from '../types/event'
 import type { CommitEntry, EventFormData } from '../types/event-form'
 import { eventToFormData, formDataToEvent } from '../types/event-form'
 import { useAuth } from '../hooks/useAuth'
@@ -9,7 +9,9 @@ import { fetchEventByPath, fetchEventById, saveEvent, fetchEventHistory } from '
 import { EventDetailView } from '../components/events/EventDetailView'
 import { EventEditForm } from '../components/events/EventEditForm'
 import { EventHistory } from '../components/events/EventHistory'
+import { StatusTransitionControl } from '../components/events/StatusTransitionControl'
 import { SaveDialog } from '../components/ui/SaveDialog'
+import { getNextStatuses } from '../utils/status-workflow'
 
 type Tab = 'details' | 'history'
 
@@ -46,6 +48,7 @@ export function EventDetailPage() {
   const [activeTab, setActiveTab] = useState<Tab>('details')
   const [commits, setCommits] = useState<readonly CommitEntry[]>([])
   const [isLoadingHistory, setIsLoadingHistory] = useState(false)
+  const [isTransitioning, setIsTransitioning] = useState(false)
 
   const form = useEventForm(event ? eventToFormData(event) : EMPTY_FORM_DATA)
 
@@ -139,6 +142,33 @@ export function EventDetailPage() {
     }
   }
 
+  const handleStatusTransition = async (newStatus: EventStatus) => {
+    if (!token || !event) return
+    setIsTransitioning(true)
+    setError('')
+    setSaveSuccess('')
+    try {
+      const updatedFormData: EventFormData = {
+        ...form.formData,
+        status: newStatus,
+        date: form.formData.event_start_date,
+        updated_at: new Date().toISOString(),
+      }
+      const updatedEvent = formDataToEvent(updatedFormData, event.filePath)
+      const message = `status: ${event.status} → ${newStatus} — ${event.event_name}`
+      const result = await saveEvent(token, updatedEvent, event.filePath, sha, message)
+      setEvent(result.event)
+      setSha(result.sha)
+      form.reset(eventToFormData(result.event))
+      setSaveSuccess(`Status changed to ${newStatus}`)
+      setCommits([])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update status')
+    } finally {
+      setIsTransitioning(false)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="p-6">
@@ -197,6 +227,14 @@ export function EventDetailPage() {
         </div>
       </div>
 
+      <StatusTransitionControl
+        currentStatus={event.status}
+        eventName={event.event_name}
+        formData={form.formData}
+        onTransition={handleStatusTransition}
+        isTransitioning={isTransitioning}
+      />
+
       {saveSuccess && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
           <p className="text-green-800 text-sm">{saveSuccess}</p>
@@ -243,6 +281,7 @@ export function EventDetailPage() {
             errors={form.errors}
             setField={form.setField}
             setArray={form.setArray}
+            allowedStatuses={[event.status, ...getNextStatuses(event.status)]}
           />
         ) : (
           <EventDetailView event={event} />

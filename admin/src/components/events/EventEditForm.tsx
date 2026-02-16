@@ -1,3 +1,4 @@
+import type { EventStatus } from '../../types/event'
 import type { EventFormData, ValidationErrors } from '../../types/event-form'
 import { MetadataSection } from './form/MetadataSection'
 import { EventDetailsSection } from './form/EventDetailsSection'
@@ -12,12 +13,13 @@ interface EventEditFormProps {
   readonly errors: ValidationErrors
   readonly setField: (field: string, value: unknown) => void
   readonly setArray: (field: string, value: string[]) => void
+  readonly allowedStatuses?: readonly EventStatus[]
 }
 
-export function EventEditForm({ formData, errors, setField, setArray }: EventEditFormProps) {
+export function EventEditForm({ formData, errors, setField, setArray, allowedStatuses }: EventEditFormProps) {
   return (
     <div className="space-y-8">
-      <MetadataSection formData={formData} setField={setField} />
+      <MetadataSection formData={formData} setField={setField} allowedStatuses={allowedStatuses} />
       <EventDetailsSection formData={formData} errors={errors} setField={setField} setArray={setArray} />
       <PricingSection formData={formData} errors={errors} setField={setField} />
       <LocationSection formData={formData} setField={setField} />
