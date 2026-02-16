@@ -30,7 +30,7 @@
   {{- range $published }}
   <li class="event-card{{ if .Params.featured }} featured{{ end }}">
     {{ if and .Params.featured (eq .Params.featured_type "badge") }}<span class="badge">Featured</span>{{ end }}
-    <h2><a href="{{ .Permalink }}">{{ .Params.event_name }}</a></h2>
+    <h2><a href="{{ .RelPermalink }}">{{ .Params.event_name }}</a></h2>
     <div class="event-meta">
       <span>{{ dateFormat "2 Jan 2006, 15:04" .Params.event_start_date }}</span>
       <span>{{ .Params.location_name }}</span>
@@ -80,7 +80,7 @@
   {{ $count := len (where .Pages "Params.status" "published") }}
   {{ if gt $count 0 }}
   <li class="taxonomy-item">
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
+    <a href="{{ .RelPermalink }}">{{ .Title }}</a>
     <span class="taxonomy-count">{{ $count }}</span>
   </li>
   {{ end }}
