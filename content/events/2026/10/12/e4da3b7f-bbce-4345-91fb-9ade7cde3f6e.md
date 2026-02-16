@@ -1,6 +1,7 @@
 ---
 event_id: "e4da3b7f-bbce-4345-91fb-9ade7cde3f6e"
 date: "2026-10-12T09:00:00+02:00"
+slug: "swiss-nlp-conference-2026"
 status: "published"
 source: "manual"
 created_at: "2026-02-16T13:00:00+01:00"

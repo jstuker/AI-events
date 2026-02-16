@@ -2,6 +2,7 @@
 # Internal metadata (system-managed)
 event_id: "{{ uuid }}"
 date: "{{ now.Format "2006-01-02T15:04:05+01:00" }}"
+slug: ""
 status: "draft"
 source: "manual"
 created_at: "{{ now.Format "2006-01-02T15:04:05+01:00" }}"
@@ -27,7 +28,7 @@ event_price_availability: "InStock"
 event_image_1x1: ""
 event_image_16x9: ""
 event_language: ["en"]
-event_attendance_mode: "presence"
+event_attendance_mode: "online"
 event_target_audience: ""
 
 # Location
