@@ -21,7 +21,6 @@ import { EventHistory } from "../components/events/EventHistory";
 import { StatusTransitionControl } from "../components/events/StatusTransitionControl";
 import { DuplicateAlert } from "../components/events/DuplicateAlert";
 import { SaveDialog } from "../components/ui/SaveDialog";
-import { getNextStatuses } from "../utils/status-workflow";
 import { fetchAllEvents } from "../services/event-service";
 import { findDuplicatesForEvent } from "../utils/duplicate-detection";
 import type { DuplicateMatch } from "../utils/duplicate-detection";
@@ -375,7 +374,6 @@ export function EventDetailPage() {
             errors={form.errors}
             setField={form.setField}
             setArray={form.setArray}
-            allowedStatuses={[event.status, ...getNextStatuses(event.status)]}
           />
         ) : (
           <EventDetailView event={event} />
