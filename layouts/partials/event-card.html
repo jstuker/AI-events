@@ -17,6 +17,7 @@
       decoding="async"
       width="640"
       height="360"
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
     >
   {{ else }}
     <svg class="event-card-image" viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -37,7 +38,7 @@
       {{ else if eq .Params.event_price_type "range" }}<span>{{ .Params.event_price_currency }} {{ .Params.event_low_price }}–{{ .Params.event_high_price }}</span>
       {{ end }}
     </div>
-    <p style="margin-top: 0.5rem;">{{ .Params.event_description | truncate 200 }}</p>
-    {{ with .Params.tags }}<div style="margin-top: 0.5rem;">{{ range . }}<span class="tag">{{ . }}</span>{{ end }}</div>{{ end }}
+    <p class="event-card-desc">{{ .Params.event_description | truncate 200 }}</p>
+    {{ with .Params.tags }}<div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap;">{{ range . }}<span class="tag">{{ . }}</span>{{ end }}</div>{{ end }}
   </div>
 </li>
