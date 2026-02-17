@@ -3,7 +3,9 @@ import type { EventFormData, ValidationErrors } from "../types/event-form";
 const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const URL_REGEX = /^https?:\/\/.+/;
 const IMAGE_PATH_REGEX = /^(\/images\/|https?:\/\/)/;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// HTML5 spec email pattern: local-part@domain with proper label validation
+const EMAIL_REGEX =
+  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}/;
 
 export function validateEvent(form: EventFormData): ValidationErrors {
