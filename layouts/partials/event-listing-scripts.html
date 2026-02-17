@@ -30,7 +30,7 @@
       }
     });
     var view = params.get('view');
-    if (view && (view === 'grid' || view === 'list' || view === 'calendar')) {
+    if (view && (view === 'grid' || view === 'calendar')) {
       setView(view);
     }
   }
@@ -65,11 +65,9 @@
     var calendar = document.getElementById('calendar-view');
     var noResults = document.getElementById('no-results');
     var btnGrid = document.getElementById('btn-grid');
-    var btnList = document.getElementById('btn-list');
     var btnCal = document.getElementById('btn-calendar');
 
     btnGrid.classList.toggle('active', view === 'grid');
-    btnList.classList.toggle('active', view === 'list');
     btnCal.classList.toggle('active', view === 'calendar');
 
     if (view === 'calendar') {
@@ -80,7 +78,6 @@
     } else {
       list.style.display = '';
       calendar.classList.remove('active');
-      list.classList.toggle('list-view', view === 'list');
       applyFilters();
     }
     writeUrlParams();

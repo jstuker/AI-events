@@ -68,23 +68,6 @@
     background: #f3f4f6;
   }
 
-  /* List view styles */
-  .events-list.list-view {
-    grid-template-columns: 1fr !important;
-  }
-  .events-list.list-view .event-card {
-    flex-direction: row;
-  }
-  .events-list.list-view .event-card-image {
-    width: 200px;
-    min-width: 200px;
-    aspect-ratio: 16 / 9;
-  }
-  @media (max-width: 600px) {
-    .events-list.list-view .event-card { flex-direction: column; }
-    .events-list.list-view .event-card-image { width: 100%; min-width: unset; }
-  }
-
   /* Calendar view styles */
   .calendar-view { display: none; margin-top: 1.5rem; }
   .calendar-view.active { display: block; }
@@ -153,7 +136,7 @@
   @media (max-width: 600px) {
     .listing-controls { flex-direction: column; align-items: stretch; margin-top: 0.75rem; }
     .listing-subbar { flex-direction: column; gap: 0.5rem; align-items: stretch; }
-    .listing-subbar .view-toggle { justify-content: center; }
+    .listing-subbar .view-toggle { display: none; }
     .listing-subbar .result-count { text-align: center; }
     .filter-group { width: 100%; }
     .search-group { flex: 0 1 auto; }
@@ -219,7 +202,6 @@
   <div class="result-count" id="result-count"></div>
   <div class="view-toggle">
     <button id="btn-grid" class="active" onclick="setView('grid')" title="Grid view">Grid</button>
-    <button id="btn-list" onclick="setView('list')" title="List view">List</button>
     <button id="btn-calendar" onclick="setView('calendar')" title="Calendar view">Calendar</button>
   </div>
 </div>
