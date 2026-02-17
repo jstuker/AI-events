@@ -276,18 +276,23 @@ export function EventDetailPage() {
 
   return (
     <div className="p-6 max-w-5xl">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <Link
-            to="/events"
-            className="text-blue-600 hover:text-blue-800 text-sm"
-          >
-            &larr; Back to events
-          </Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-1">
-            {event.event_name}
-          </h1>
-        </div>
+      <Link
+        to="/events"
+        className="text-blue-600 hover:text-blue-800 text-sm inline-block mb-4"
+      >
+        &larr; Back to events
+      </Link>
+
+      <StatusTransitionControl
+        currentStatus={event.status}
+        eventName={event.event_name}
+        formData={form.formData}
+        onTransition={handleStatusTransition}
+        isTransitioning={isTransitioning}
+      />
+
+      <div className="flex items-center justify-between mb-6 mt-4">
+        <h1 className="text-2xl font-bold text-gray-900">{event.event_name}</h1>
         <div className="flex gap-2">
           {isEditing ? (
             <>
@@ -317,14 +322,6 @@ export function EventDetailPage() {
           )}
         </div>
       </div>
-
-      <StatusTransitionControl
-        currentStatus={event.status}
-        eventName={event.event_name}
-        formData={form.formData}
-        onTransition={handleStatusTransition}
-        isTransitioning={isTransitioning}
-      />
 
       <DuplicateAlert matches={duplicateMatches} />
 
