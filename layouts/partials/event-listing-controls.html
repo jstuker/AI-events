@@ -27,10 +27,15 @@
   }
   .search-group { flex: 1 1 200px; }
   .search-group input[type="search"] { width: 100%; }
+  .listing-subbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+  }
   .result-count {
     font-size: 0.8125rem;
     color: var(--color-muted);
-    margin-top: 0.75rem;
   }
   .filter-group {
     display: flex;
@@ -40,7 +45,6 @@
   .view-toggle {
     display: flex;
     gap: 0;
-    margin-left: auto;
     border: 1px solid var(--color-border);
     border-radius: 6px;
     overflow: hidden;
@@ -179,42 +183,6 @@
   </div>
 
   <div class="filter-group">
-    <label for="filter-tag">Category</label>
-    <select id="filter-tag" onchange="applyFilters()">
-      <option value="">All categories</option>
-      {{ $tags := slice }}
-      {{ range $pages }}
-        {{ with .Params.tags }}
-          {{ range . }}
-            {{ $tags = $tags | append . }}
-          {{ end }}
-        {{ end }}
-      {{ end }}
-      {{ range ($tags | uniq | sort) }}
-      <option value="{{ . }}">{{ . }}</option>
-      {{ end }}
-    </select>
-  </div>
-
-  <div class="filter-group">
-    <label for="filter-lang">Language</label>
-    <select id="filter-lang" onchange="applyFilters()">
-      <option value="">All languages</option>
-      {{ $langs := slice }}
-      {{ range $pages }}
-        {{ with .Params.event_language }}
-          {{ range . }}
-            {{ $langs = $langs | append . }}
-          {{ end }}
-        {{ end }}
-      {{ end }}
-      {{ range ($langs | uniq | sort) }}
-      <option value="{{ . }}">{{ . }}</option>
-      {{ end }}
-    </select>
-  </div>
-
-  <div class="filter-group">
     <label for="filter-mode">Mode</label>
     <select id="filter-mode" onchange="applyFilters()">
       <option value="">All modes</option>
@@ -231,32 +199,21 @@
   </div>
 
   <div class="filter-group">
-    <label for="filter-price">Price</label>
-    <select id="filter-price" onchange="applyFilters()">
-      <option value="">All prices</option>
-      <option value="free">Free</option>
-      <option value="paid">Paid</option>
-    </select>
-  </div>
-
-  <div class="filter-group">
     <label for="filter-date-from">From</label>
     <input type="date" id="filter-date-from" onchange="applyFilters()">
   </div>
 
-  <div class="filter-group">
-    <label for="filter-date-to">To</label>
-    <input type="date" id="filter-date-to" onchange="applyFilters()">
-  </div>
+  <button id="btn-reset" onclick="resetFilters()" style="display:none; padding:0.375rem 0.75rem; border:1px solid var(--color-border); border-radius:6px; background:#fff; color:var(--color-primary); cursor:pointer; font-size:0.8125rem; font-weight:500; align-self:flex-end;">Reset filters</button>
+</div>
 
+<div class="listing-subbar">
+  <div class="result-count" id="result-count"></div>
   <div class="view-toggle">
     <button id="btn-grid" class="active" onclick="setView('grid')" title="Grid view">Grid</button>
     <button id="btn-list" onclick="setView('list')" title="List view">List</button>
     <button id="btn-calendar" onclick="setView('calendar')" title="Calendar view">Calendar</button>
   </div>
 </div>
-
-<div class="result-count" id="result-count"></div>
 
 <div class="calendar-view" id="calendar-view">
   <div class="calendar-header">
