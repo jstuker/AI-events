@@ -1,5 +1,33 @@
 {{ define "title" }}{{ .Title }} — {{ .Site.Title }}{{ end }}
 
+{{ define "head" }}
+{{/* CollectionPage + ItemList schema for events listing */}}
+{{ $published := where .Pages "Params.status" "published" }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": {{ .Title }},
+  "url": {{ .Permalink }},
+  "description": {{ .Site.Params.description }},
+  "mainEntity": {
+    "@type": "ItemList",
+    "numberOfItems": {{ len $published }},
+    "itemListElement": [
+      {{- range $i, $e := $published }}{{ if $i }},{{ end }}
+      {
+        "@type": "ListItem",
+        "position": {{ add $i 1 }},
+        "url": {{ $e.Permalink }},
+        "name": {{ $e.Params.event_name }}
+      }
+      {{- end }}
+    ]
+  }
+}
+</script>
+{{ end }}
+
 {{ define "main" }}
 <h1>{{ .Title }}</h1>
 {{ with .Content }}<div class="section-description">{{ . }}</div>{{ end }}
