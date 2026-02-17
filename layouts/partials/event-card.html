@@ -4,6 +4,9 @@
   data-tags="{{ with .Params.tags }}{{ delimit . "," }}{{ end }}"
   data-lang="{{ with .Params.event_language }}{{ delimit . "," }}{{ end }}"
   data-featured="{{ .Params.featured }}"
+  data-mode="{{ .Params.event_attendance_mode }}"
+  data-price="{{ .Params.event_price_type }}"
+  data-search="{{ .Params.event_name | lower }} {{ .Params.event_description | lower }}"
 >
   {{ if .Params.event_image_16x9 }}
     <img
