@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { validateOAuthState } from "../config/github";
 
 export function CallbackPage() {
   const [searchParams] = useSearchParams();
@@ -12,6 +13,15 @@ export function CallbackPage() {
   useEffect(() => {
     if (codeExchanged.current) return;
     const code = searchParams.get("code");
+    const state = searchParams.get("state");
+
+    if (!validateOAuthState(state)) {
+      setError(
+        "Invalid OAuth state — possible CSRF attack. Please try logging in again.",
+      );
+      return;
+    }
+
     if (!code) {
       setError("No authorization code received");
       return;

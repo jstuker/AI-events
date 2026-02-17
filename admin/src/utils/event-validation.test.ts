@@ -141,6 +141,33 @@ describe("validateEvent", () => {
     expect(errors.organizer_url).toContain("valid URL");
   });
 
+  it("rejects URLs with javascript: scheme", () => {
+    const form = createFormData({ event_url: "javascript:alert(1)" });
+    const errors = validateEvent(form);
+    expect(errors.event_url).toContain("scheme not allowed");
+  });
+
+  it("rejects URLs with data: scheme", () => {
+    const form = createFormData({ event_url: "data:text/html,<h1>hi</h1>" });
+    const errors = validateEvent(form);
+    expect(errors.event_url).toContain("scheme not allowed");
+  });
+
+  it("rejects URLs exceeding 2048 characters", () => {
+    const longUrl = "https://example.com/" + "a".repeat(2040);
+    const form = createFormData({ event_url: longUrl });
+    const errors = validateEvent(form);
+    expect(errors.event_url).toContain("2048 characters");
+  });
+
+  it("accepts URLs with query params and fragments", () => {
+    const form = createFormData({
+      event_url: "https://example.com/path?foo=bar&baz=qux#section",
+    });
+    const errors = validateEvent(form);
+    expect(errors.event_url).toBeUndefined();
+  });
+
   it("validates email format", () => {
     const form = createFormData({ contact_email: "not-an-email" });
     const errors = validateEvent(form);

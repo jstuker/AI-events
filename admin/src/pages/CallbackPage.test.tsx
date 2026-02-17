@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { CallbackPage } from "./CallbackPage";
+import { validateOAuthState } from "../config/github";
 
 const mockSetToken = vi.fn();
 const mockNavigate = vi.fn();
@@ -12,6 +13,10 @@ vi.mock("../hooks/useAuth", () => ({
     setToken: mockSetToken,
     isAuthenticated: mockIsAuthenticated,
   }),
+}));
+
+vi.mock("../config/github", () => ({
+  validateOAuthState: vi.fn(() => true),
 }));
 
 vi.mock("react-router-dom", async () => {
@@ -37,6 +42,17 @@ describe("CallbackPage", () => {
     vi.clearAllMocks();
     mockIsAuthenticated = false;
     globalThis.fetch = vi.fn();
+  });
+
+  describe("OAuth state validation", () => {
+    it("shows CSRF error when state is invalid", async () => {
+      vi.mocked(validateOAuthState).mockReturnValueOnce(false);
+      renderCallback("?code=test-code&state=bad-state");
+
+      await waitFor(() => {
+        expect(screen.getByText(/possible CSRF attack/)).toBeInTheDocument();
+      });
+    });
   });
 
   describe("missing authorization code", () => {

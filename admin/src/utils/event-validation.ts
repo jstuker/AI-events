@@ -1,12 +1,31 @@
 import type { EventFormData, ValidationErrors } from "../types/event-form";
 
 const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const URL_REGEX = /^https?:\/\/.+/;
+const MAX_URL_LENGTH = 2048;
+const DANGEROUS_SCHEME_REGEX = /^(javascript|data|vbscript):/i;
 const IMAGE_PATH_REGEX = /^(\/images\/|https?:\/\/)/;
 // HTML5 spec email pattern: local-part@domain with proper label validation
 const EMAIL_REGEX =
   /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}/;
+
+function validateUrl(url: string): string | null {
+  if (DANGEROUS_SCHEME_REGEX.test(url)) {
+    return "URL scheme not allowed (javascript:, data:, vbscript:)";
+  }
+  if (url.length > MAX_URL_LENGTH) {
+    return `URL must be ${MAX_URL_LENGTH} characters or less`;
+  }
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return "Must be a valid URL (http:// or https://)";
+    }
+  } catch {
+    return "Must be a valid URL (http:// or https://)";
+  }
+  return null;
+}
 
 export function validateEvent(form: EventFormData): ValidationErrors {
   const errors: ValidationErrors = {};
@@ -53,12 +72,14 @@ export function validateEvent(form: EventFormData): ValidationErrors {
     }
   }
 
-  if (form.event_url && !URL_REGEX.test(form.event_url)) {
-    errors.event_url = "Must be a valid URL (http:// or https://)";
+  if (form.event_url) {
+    const urlError = validateUrl(form.event_url);
+    if (urlError) errors.event_url = urlError;
   }
 
-  if (form.organizer_url && !URL_REGEX.test(form.organizer_url)) {
-    errors.organizer_url = "Must be a valid URL (http:// or https://)";
+  if (form.organizer_url) {
+    const urlError = validateUrl(form.organizer_url);
+    if (urlError) errors.organizer_url = urlError;
   }
 
   if (form.contact_email && !EMAIL_REGEX.test(form.contact_email)) {
