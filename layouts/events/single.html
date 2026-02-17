@@ -175,11 +175,11 @@
   <dl class="event-info">
     <div>
       <dt>Date</dt>
-      <dd>{{ dateFormat "Monday, 2 January 2006" .Params.event_start_date }}</dd>
+      <dd><time datetime="{{ dateFormat "2006-01-02" .Params.event_start_date }}">{{ dateFormat "Monday, 2 January 2006" .Params.event_start_date }}</time></dd>
     </div>
     <div>
       <dt>Time</dt>
-      <dd>{{ dateFormat "15:04" .Params.event_start_date }} – {{ dateFormat "15:04" .Params.event_end_date }}</dd>
+      <dd><time datetime="{{ dateFormat "15:04" .Params.event_start_date }}">{{ dateFormat "15:04" .Params.event_start_date }}</time> – <time datetime="{{ dateFormat "15:04" .Params.event_end_date }}">{{ dateFormat "15:04" .Params.event_end_date }}</time></dd>
     </div>
     <div>
       <dt>Location</dt>
