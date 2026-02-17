@@ -1,4 +1,4 @@
-<li class="event-card{{ if .Params.featured }} featured{{ end }}"
+<li class="event-card{{ if .Params.featured }} featured featured-{{ .Params.featured_type | default "badge" }}{{ end }}"
   data-date="{{ dateFormat "2006-01-02" .Params.event_start_date }}"
   data-city="{{ with .Params.cities }}{{ index . 0 }}{{ end }}"
   data-tags="{{ with .Params.tags }}{{ delimit . "," }}{{ end }}"
