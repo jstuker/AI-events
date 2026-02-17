@@ -1,0 +1,177 @@
+<script>
+(function() {
+  'use strict';
+
+  // --- View toggle ---
+  var currentView = 'grid';
+
+  window.setView = function(view) {
+    currentView = view;
+    var list = document.getElementById('events-list');
+    var calendar = document.getElementById('calendar-view');
+    var noResults = document.getElementById('no-results');
+    var btnGrid = document.getElementById('btn-grid');
+    var btnList = document.getElementById('btn-list');
+    var btnCal = document.getElementById('btn-calendar');
+
+    btnGrid.classList.toggle('active', view === 'grid');
+    btnList.classList.toggle('active', view === 'list');
+    btnCal.classList.toggle('active', view === 'calendar');
+
+    if (view === 'calendar') {
+      list.style.display = 'none';
+      noResults.style.display = 'none';
+      calendar.classList.add('active');
+      renderCalendar();
+    } else {
+      list.style.display = '';
+      calendar.classList.remove('active');
+      list.classList.toggle('list-view', view === 'list');
+      applyFilters();
+    }
+  };
+
+  // --- Filtering ---
+  window.applyFilters = function() {
+    var city = document.getElementById('filter-city').value;
+    var tag = document.getElementById('filter-tag').value;
+    var lang = document.getElementById('filter-lang').value;
+    var dateFrom = document.getElementById('filter-date-from').value;
+    var dateTo = document.getElementById('filter-date-to').value;
+
+    var cards = document.querySelectorAll('#events-list .event-card');
+    var visibleCount = 0;
+
+    cards.forEach(function(card) {
+      var show = true;
+
+      if (city && card.dataset.city !== city) show = false;
+      if (tag && (!card.dataset.tags || card.dataset.tags.split(',').indexOf(tag) === -1)) show = false;
+      if (lang && (!card.dataset.lang || card.dataset.lang.split(',').indexOf(lang) === -1)) show = false;
+      if (dateFrom && card.dataset.date < dateFrom) show = false;
+      if (dateTo && card.dataset.date > dateTo) show = false;
+
+      card.style.display = show ? '' : 'none';
+      if (show) visibleCount++;
+    });
+
+    document.getElementById('no-results').style.display = visibleCount === 0 ? '' : 'none';
+
+    if (currentView === 'calendar') {
+      renderCalendar();
+    }
+  };
+
+  window.resetFilters = function() {
+    document.getElementById('filter-city').value = '';
+    document.getElementById('filter-tag').value = '';
+    document.getElementById('filter-lang').value = '';
+    document.getElementById('filter-date-from').value = '';
+    document.getElementById('filter-date-to').value = '';
+    applyFilters();
+  };
+
+  // --- Calendar view ---
+  var calendarDate = new Date();
+
+  // Find the earliest event to set initial calendar month
+  var allCards = document.querySelectorAll('#events-list .event-card');
+  if (allCards.length > 0) {
+    var dates = [];
+    allCards.forEach(function(card) {
+      if (card.dataset.date) dates.push(card.dataset.date);
+    });
+    dates.sort();
+    if (dates.length > 0) {
+      var parts = dates[0].split('-');
+      calendarDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
+    }
+  }
+
+  window.changeMonth = function(delta) {
+    calendarDate.setMonth(calendarDate.getMonth() + delta);
+    renderCalendar();
+  };
+
+  function getFilteredEvents() {
+    var city = document.getElementById('filter-city').value;
+    var tag = document.getElementById('filter-tag').value;
+    var lang = document.getElementById('filter-lang').value;
+    var dateFrom = document.getElementById('filter-date-from').value;
+    var dateTo = document.getElementById('filter-date-to').value;
+
+    var events = [];
+    document.querySelectorAll('#events-list .event-card').forEach(function(card) {
+      var show = true;
+      if (city && card.dataset.city !== city) show = false;
+      if (tag && (!card.dataset.tags || card.dataset.tags.split(',').indexOf(tag) === -1)) show = false;
+      if (lang && (!card.dataset.lang || card.dataset.lang.split(',').indexOf(lang) === -1)) show = false;
+      if (dateFrom && card.dataset.date < dateFrom) show = false;
+      if (dateTo && card.dataset.date > dateTo) show = false;
+
+      if (show) {
+        var link = card.querySelector('h2 a');
+        events.push({
+          date: card.dataset.date,
+          name: link ? link.textContent : 'Event',
+          href: link ? link.getAttribute('href') : '#',
+          featured: card.dataset.featured === 'true'
+        });
+      }
+    });
+    return events;
+  }
+
+  function renderCalendar() {
+    var year = calendarDate.getFullYear();
+    var month = calendarDate.getMonth();
+
+    var monthNames = ['January','February','March','April','May','June',
+      'July','August','September','October','November','December'];
+    document.getElementById('calendar-month-label').textContent = monthNames[month] + ' ' + year;
+
+    var firstDay = new Date(year, month, 1).getDay();
+    var startOffset = (firstDay === 0) ? 6 : firstDay - 1; // Monday start
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
+    var daysInPrevMonth = new Date(year, month, 0).getDate();
+
+    var events = getFilteredEvents();
+    var eventsByDate = {};
+    events.forEach(function(ev) {
+      if (!eventsByDate[ev.date]) eventsByDate[ev.date] = [];
+      eventsByDate[ev.date].push(ev);
+    });
+
+    var html = '';
+    var dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    dayNames.forEach(function(d) {
+      html += '<div class="calendar-day-header">' + d + '</div>';
+    });
+
+    // Previous month days
+    for (var i = startOffset - 1; i >= 0; i--) {
+      html += '<div class="calendar-day other-month"><div class="day-number">' + (daysInPrevMonth - i) + '</div></div>';
+    }
+
+    // Current month days
+    for (var d = 1; d <= daysInMonth; d++) {
+      var dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+      var dayEvents = eventsByDate[dateStr] || [];
+      html += '<div class="calendar-day"><div class="day-number">' + d + '</div>';
+      dayEvents.forEach(function(ev) {
+        html += '<a class="cal-event' + (ev.featured ? ' featured' : '') + '" href="' + ev.href + '" title="' + ev.name.replace(/"/g, '&quot;') + '">' + ev.name + '</a>';
+      });
+      html += '</div>';
+    }
+
+    // Next month days to fill the grid
+    var totalCells = startOffset + daysInMonth;
+    var remaining = (7 - (totalCells % 7)) % 7;
+    for (var n = 1; n <= remaining; n++) {
+      html += '<div class="calendar-day other-month"><div class="day-number">' + n + '</div></div>';
+    }
+
+    document.getElementById('calendar-grid').innerHTML = html;
+  }
+})();
+</script>

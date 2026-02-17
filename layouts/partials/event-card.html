@@ -1,4 +1,10 @@
-<li class="event-card{{ if .Params.featured }} featured{{ end }}">
+<li class="event-card{{ if .Params.featured }} featured{{ end }}"
+  data-date="{{ dateFormat "2006-01-02" .Params.event_start_date }}"
+  data-city="{{ with .Params.cities }}{{ index . 0 }}{{ end }}"
+  data-tags="{{ with .Params.tags }}{{ delimit . "," }}{{ end }}"
+  data-lang="{{ with .Params.event_language }}{{ delimit . "," }}{{ end }}"
+  data-featured="{{ .Params.featured }}"
+>
   {{ if .Params.event_image_16x9 }}
     <img
       class="event-card-image"
@@ -21,8 +27,9 @@
     <div class="event-meta">
       <span>{{ dateFormat "2 Jan 2006, 15:04" .Params.event_start_date }}</span>
       <span>{{ .Params.location_name }}</span>
+      {{ with .Params.organizer_name }}<span>{{ . }}</span>{{ end }}
       {{ with .Params.event_attendance_mode }}<span>{{ . }}</span>{{ end }}
-      {{ if eq .Params.event_price_type "free" }}<span>Free</span>
+      {{ if eq .Params.event_price_type "free" }}<span class="price-free">Free</span>
       {{ else if eq .Params.event_price_type "paid" }}<span>{{ .Params.event_price_currency }} {{ .Params.event_price }}</span>
       {{ else if eq .Params.event_price_type "range" }}<span>{{ .Params.event_price_currency }} {{ .Params.event_low_price }}–{{ .Params.event_high_price }}</span>
       {{ end }}
