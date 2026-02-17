@@ -53,12 +53,14 @@
   <header>
     <h1><a href="{{ .Site.BaseURL }}">Swiss {ai} Weeks — Events</a></h1>
     <p class="tagline">The definitive source of AI events in Switzerland</p>
+    {{ if not (eq .Section "events") }}
     <nav class="tabs">
       <a href="{{ "tags/" | relURL }}"{{ if hasPrefix .RelPermalink "/tags" }} class="active"{{ end }}>Tags</a>
       <a href="{{ "cities/" | relURL }}"{{ if hasPrefix .RelPermalink "/cities" }} class="active"{{ end }}>Cities</a>
       <a href="{{ "locations/" | relURL }}"{{ if hasPrefix .RelPermalink "/locations" }} class="active"{{ end }}>Locations</a>
       <a href="{{ "organizers/" | relURL }}"{{ if hasPrefix .RelPermalink "/organizers" }} class="active"{{ end }}>Organizers</a>
     </nav>
+    {{ end }}
   </header>
   <main>
     {{ block "main" . }}{{ end }}

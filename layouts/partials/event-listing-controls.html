@@ -1,0 +1,228 @@
+<style>
+  .listing-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+  }
+  .listing-controls label {
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+    font-weight: 500;
+  }
+  .listing-controls select,
+  .listing-controls input[type="date"] {
+    padding: 0.375rem 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    background: #fff;
+    color: var(--color-text);
+  }
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .view-toggle {
+    display: flex;
+    gap: 0;
+    margin-left: auto;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .view-toggle button {
+    padding: 0.375rem 0.75rem;
+    border: none;
+    background: #fff;
+    color: var(--color-muted);
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background 0.15s, color 0.15s;
+  }
+  .view-toggle button.active {
+    background: var(--color-primary);
+    color: #fff;
+  }
+  .view-toggle button:hover:not(.active) {
+    background: #f3f4f6;
+  }
+
+  /* List view styles */
+  .events-list.list-view {
+    grid-template-columns: 1fr !important;
+  }
+  .events-list.list-view .event-card {
+    flex-direction: row;
+  }
+  .events-list.list-view .event-card-image {
+    width: 200px;
+    min-width: 200px;
+    aspect-ratio: 16 / 9;
+  }
+  @media (max-width: 600px) {
+    .events-list.list-view .event-card { flex-direction: column; }
+    .events-list.list-view .event-card-image { width: 100%; min-width: unset; }
+  }
+
+  /* Calendar view styles */
+  .calendar-view { display: none; margin-top: 1.5rem; }
+  .calendar-view.active { display: block; }
+  .calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .calendar-header h3 { font-size: 1.25rem; }
+  .calendar-header button {
+    padding: 0.375rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.875rem;
+  }
+  .calendar-header button:hover { background: #f3f4f6; }
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .calendar-day-header {
+    background: #f9fafb;
+    padding: 0.5rem;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-muted);
+  }
+  .calendar-day {
+    background: #fff;
+    min-height: 80px;
+    padding: 0.375rem;
+    vertical-align: top;
+  }
+  .calendar-day.other-month { background: #f9fafb; color: #d1d5db; }
+  .calendar-day .day-number {
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+  .calendar-day .cal-event {
+    display: block;
+    font-size: 0.6875rem;
+    padding: 0.125rem 0.25rem;
+    margin-bottom: 0.125rem;
+    border-radius: 3px;
+    background: #eff6ff;
+    color: var(--color-primary);
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .calendar-day .cal-event:hover { background: #dbeafe; }
+  .calendar-day .cal-event.featured { background: #fef3c7; color: #92400e; }
+
+  @media (max-width: 600px) {
+    .listing-controls { flex-direction: column; align-items: stretch; }
+    .view-toggle { margin-left: 0; justify-content: center; }
+    .filter-group { width: 100%; }
+    .filter-group select, .filter-group input[type="date"] { width: 100%; }
+    .calendar-day { min-height: 50px; }
+    .calendar-day .cal-event { font-size: 0.5625rem; }
+  }
+</style>
+
+<div class="listing-controls">
+  <div class="filter-group">
+    <label for="filter-city">City</label>
+    <select id="filter-city" onchange="applyFilters()">
+      <option value="">All cities</option>
+      {{ $pages := where (where .Site.RegularPages "Section" "events") "Params.status" "published" }}
+      {{ $cities := slice }}
+      {{ range $pages }}
+        {{ with .Params.cities }}
+          {{ range . }}
+            {{ $cities = $cities | append . }}
+          {{ end }}
+        {{ end }}
+      {{ end }}
+      {{ range ($cities | uniq | sort) }}
+      <option value="{{ . }}">{{ . }}</option>
+      {{ end }}
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label for="filter-tag">Category</label>
+    <select id="filter-tag" onchange="applyFilters()">
+      <option value="">All categories</option>
+      {{ $tags := slice }}
+      {{ range $pages }}
+        {{ with .Params.tags }}
+          {{ range . }}
+            {{ $tags = $tags | append . }}
+          {{ end }}
+        {{ end }}
+      {{ end }}
+      {{ range ($tags | uniq | sort) }}
+      <option value="{{ . }}">{{ . }}</option>
+      {{ end }}
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label for="filter-lang">Language</label>
+    <select id="filter-lang" onchange="applyFilters()">
+      <option value="">All languages</option>
+      {{ $langs := slice }}
+      {{ range $pages }}
+        {{ with .Params.event_language }}
+          {{ range . }}
+            {{ $langs = $langs | append . }}
+          {{ end }}
+        {{ end }}
+      {{ end }}
+      {{ range ($langs | uniq | sort) }}
+      <option value="{{ . }}">{{ . }}</option>
+      {{ end }}
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label for="filter-date-from">From</label>
+    <input type="date" id="filter-date-from" onchange="applyFilters()">
+  </div>
+
+  <div class="filter-group">
+    <label for="filter-date-to">To</label>
+    <input type="date" id="filter-date-to" onchange="applyFilters()">
+  </div>
+
+  <div class="view-toggle">
+    <button id="btn-grid" class="active" onclick="setView('grid')" title="Grid view">Grid</button>
+    <button id="btn-list" onclick="setView('list')" title="List view">List</button>
+    <button id="btn-calendar" onclick="setView('calendar')" title="Calendar view">Calendar</button>
+  </div>
+</div>
+
+<div class="calendar-view" id="calendar-view">
+  <div class="calendar-header">
+    <button onclick="changeMonth(-1)">&larr; Prev</button>
+    <h3 id="calendar-month-label"></h3>
+    <button onclick="changeMonth(1)">Next &rarr;</button>
+  </div>
+  <div class="calendar-grid" id="calendar-grid"></div>
+</div>

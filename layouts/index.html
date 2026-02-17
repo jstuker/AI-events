@@ -1,9 +1,28 @@
 {{ define "main" }}
 {{ partial "event-card-styles.html" . }}
+{{ partial "event-listing-controls.html" . }}
 
-<ul class="events-list">
-  {{- range where (where .Site.RegularPages "Section" "events") "Params.status" "published" }}
+{{ $events := where (where .Site.RegularPages "Section" "events") "Params.status" "published" }}
+{{ $featured := where $events "Params.featured" true }}
+{{ $regular := where $events "Params.featured" "ne" true }}
+
+<ul class="events-list" id="events-list">
+  {{- range $featured }}
+  {{ partial "event-card.html" . }}
+  {{- end }}
+  {{- range $regular }}
   {{ partial "event-card.html" . }}
   {{- end }}
 </ul>
+
+<div style="text-align:center; margin-top:1.5rem;">
+  <button id="load-more" onclick="loadMore()" style="display:none; padding:0.625rem 1.5rem; border:1px solid var(--color-border); border-radius:6px; background:#fff; color:var(--color-primary); cursor:pointer; font-size:0.9375rem; font-weight:500;">Load more</button>
+</div>
+
+<div id="no-results" style="display:none; text-align:center; padding:3rem 1rem; color:var(--color-muted);">
+  <p style="font-size:1.25rem;">No events match your filters.</p>
+  <p><button onclick="resetFilters()" style="color:var(--color-primary); background:none; border:none; cursor:pointer; font-size:1rem; text-decoration:underline;">Clear all filters</button></p>
+</div>
+
+{{ partial "event-listing-scripts.html" . }}
 {{ end }}
