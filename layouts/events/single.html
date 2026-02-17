@@ -1,49 +1,74 @@
 {{ define "title" }}{{ .Params.event_name }} — {{ .Site.Title }}{{ end }}
 
 {{ define "head" }}
+{{/* Event-specific Open Graph meta tags */}}
+<meta property="og:type" content="event">
+<meta property="og:title" content="{{ .Params.event_name }}">
+<meta property="og:description" content="{{ .Params.event_description }}">
+<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:site_name" content="{{ .Site.Title }}">
+{{ with .Params.event_image_16x9 }}<meta property="og:image" content="{{ . | absURL }}">{{ end }}
+{{ with .Params.event_image_1x1 }}<meta property="og:image" content="{{ . | absURL }}">{{ end }}
+<meta property="event:start_time" content="{{ .Params.event_start_date }}">
+<meta property="event:end_time" content="{{ .Params.event_end_date }}">
+
+{{/* Twitter Card meta tags */}}
+<meta name="twitter:card" content="{{ if .Params.event_image_16x9 }}summary_large_image{{ else }}summary{{ end }}">
+<meta name="twitter:title" content="{{ .Params.event_name }}">
+<meta name="twitter:description" content="{{ .Params.event_description }}">
+{{ with .Params.event_image_16x9 }}<meta name="twitter:image" content="{{ . | absURL }}">{{ end }}
+
 {{/* schema.org Event JSON-LD */}}
+{{ $attendanceMode := "OfflineEventAttendanceMode" }}
+{{ if eq .Params.event_attendance_mode "online" }}{{ $attendanceMode = "OnlineEventAttendanceMode" }}{{ end }}
+{{ if eq .Params.event_attendance_mode "hybrid" }}{{ $attendanceMode = "MixedEventAttendanceMode" }}{{ end }}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Event",
-  "name": {{ .Params.event_name | jsonify }},
-  "description": {{ .Params.event_description | jsonify }},
-  "startDate": {{ .Params.event_start_date | jsonify }},
-  "endDate": {{ .Params.event_end_date | jsonify }},
-  {{- with .Params.event_image_1x1 }}
-  "image": {{ . | jsonify }},
+  "name": {{ .Params.event_name }},
+  "description": {{ .Params.event_description }},
+  "url": {{ .Permalink }},
+  "startDate": "{{ .Params.event_start_date }}",
+  "endDate": "{{ .Params.event_end_date }}",
+  {{- with .Params.event_image_16x9 }}
+  "image": [{{ . | absURL }}],
   {{- end }}
-  "eventAttendanceMode": "https://schema.org/{{ if eq .Params.event_attendance_mode "online" }}OnlineEventAttendanceMode{{ else if eq .Params.event_attendance_mode "hybrid" }}MixedEventAttendanceMode{{ else }}OfflineEventAttendanceMode{{ end }}",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "eventAttendanceMode": "https://schema.org/{{ $attendanceMode }}",
   "location": {
     "@type": "Place",
-    "name": {{ .Params.location_name | jsonify }},
+    "name": {{ .Params.location_name }},
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": {{ .Params.location_address | jsonify }}
+      "streetAddress": {{ .Params.location_address }}
     }
   },
   {{- with .Params.organizer_name }}
   "organizer": {
     "@type": "Organization",
-    "name": {{ . | jsonify }}{{ with $.Params.organizer_url }},
-    "url": {{ . | jsonify }}{{ end }}
+    "name": {{ . }}{{ with $.Params.organizer_url }},
+    "url": {{ . }}{{ end }}
   },
+  {{- end }}
+  {{- with .Params.event_language }}
+  "inLanguage": {{ index . 0 }},
   {{- end }}
   "offers": {
     "@type": "Offer",
-    "url": {{ .Params.event_url | jsonify }},
-    {{- if eq .Params.event_price_type "free" }}
+    "url": {{ $.Params.event_url }},
+    {{- if eq $.Params.event_price_type "free" }}
     "price": "0",
     "priceCurrency": "CHF"
-    {{- else if eq .Params.event_price_type "paid" }}
-    "price": {{ .Params.event_price | jsonify }},
-    "priceCurrency": {{ .Params.event_price_currency | jsonify }}
-    {{- else if eq .Params.event_price_type "range" }}
-    "lowPrice": {{ .Params.event_low_price | jsonify }},
-    "highPrice": {{ .Params.event_high_price | jsonify }},
-    "priceCurrency": {{ .Params.event_price_currency | jsonify }}
+    {{- else if eq $.Params.event_price_type "paid" }}
+    "price": "{{ $.Params.event_price }}",
+    "priceCurrency": {{ $.Params.event_price_currency }}
+    {{- else if eq $.Params.event_price_type "range" }}
+    "lowPrice": "{{ $.Params.event_low_price }}",
+    "highPrice": "{{ $.Params.event_high_price }}",
+    "priceCurrency": {{ $.Params.event_price_currency }}
     {{- end }},
-    "availability": "https://schema.org/{{ .Params.event_price_availability | default "InStock" }}"
+    "availability": "https://schema.org/{{ $.Params.event_price_availability | default "InStock" }}"
   }
 }
 </script>
@@ -72,6 +97,32 @@
   .event-cta { display: inline-block; background: var(--color-primary); color: #fff; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 1.5rem; }
   .event-cta:hover { opacity: 0.9; }
   .badge-large { display: inline-block; background: var(--color-featured); color: #fff; font-size: 0.875rem; padding: 0.25rem 0.75rem; border-radius: 4px; font-weight: 600; margin-bottom: 0.5rem; }
+  .event-tags { margin-top: 1rem; }
+  .event-tags .tag { display: inline-block; background: #f3f4f6; color: var(--color-muted); font-size: 0.8125rem; padding: 0.2rem 0.6rem; border-radius: 4px; margin-right: 0.25rem; text-decoration: none; }
+  .event-tags .tag:hover { background: #e5e7eb; }
+
+  /* Social share buttons */
+  .share-section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border); }
+  .share-section h3 { font-size: 0.875rem; text-transform: uppercase; color: var(--color-muted); font-weight: 600; margin-bottom: 0.75rem; }
+  .share-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0.875rem;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: #fff;
+    transition: opacity 0.15s;
+  }
+  .share-btn:hover { opacity: 0.85; }
+  .share-btn.twitter { background: #1da1f2; }
+  .share-btn.linkedin { background: #0a66c2; }
+  .share-btn.facebook { background: #1877f2; }
+  .share-btn.email { background: #6b7280; }
+
 </style>
 
 <article class="event-detail">
@@ -129,14 +180,61 @@
       <dd>{{ delimit . ", " }}</dd>
     </div>
     {{ end }}
+    {{ with .Params.event_target_audience }}
+    <div>
+      <dt>Target Audience</dt>
+      <dd>{{ . }}</dd>
+    </div>
+    {{ end }}
   </dl>
 
   <div class="event-body">
     {{ .Content }}
   </div>
 
+  {{ with .Params.tags }}
+  <div class="event-tags">
+    {{ range . }}<a href="{{ "tags/" | relURL }}{{ . | urlize }}/" class="tag">{{ . }}</a>{{ end }}
+  </div>
+  {{ end }}
+
   {{ with .Params.event_url }}
   <a href="{{ . }}" class="event-cta" target="_blank" rel="noopener">Register / More Info</a>
   {{ end }}
+
+  {{/* Social sharing buttons */}}
+  {{ $title := .Params.event_name }}
+  {{ $url := .Permalink }}
+  {{ $desc := .Params.event_description }}
+  <div class="share-section">
+    <h3>Share this event</h3>
+    <div class="share-buttons">
+      <a class="share-btn twitter"
+         href="https://twitter.com/intent/tweet?text={{ $title | urlquery }}&url={{ $url | urlquery }}"
+         target="_blank" rel="noopener" aria-label="Share on Twitter">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Twitter
+      </a>
+      <a class="share-btn linkedin"
+         href="https://www.linkedin.com/sharing/share-offsite/?url={{ $url | urlquery }}"
+         target="_blank" rel="noopener" aria-label="Share on LinkedIn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        LinkedIn
+      </a>
+      <a class="share-btn facebook"
+         href="https://www.facebook.com/sharer/sharer.php?u={{ $url | urlquery }}"
+         target="_blank" rel="noopener" aria-label="Share on Facebook">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        Facebook
+      </a>
+      <a class="share-btn email"
+         href="mailto:?subject={{ $title | urlquery }}&body={{ $desc | urlquery }}%0A%0A{{ $url | urlquery }}"
+         aria-label="Share via email">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z"/><path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z"/></svg>
+        Email
+      </a>
+    </div>
+  </div>
 </article>
+
 {{ end }}
