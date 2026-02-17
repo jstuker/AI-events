@@ -7,8 +7,18 @@
 <meta property="og:description" content="{{ .Params.event_description }}">
 <meta property="og:url" content="{{ .Permalink }}">
 <meta property="og:site_name" content="{{ .Site.Title }}">
-{{ with .Params.event_image_16x9 }}<meta property="og:image" content="{{ . | absURL }}">{{ end }}
-{{ with .Params.event_image_1x1 }}<meta property="og:image" content="{{ . | absURL }}">{{ end }}
+<meta property="og:locale" content="{{ .Lang }}">
+{{ with .Params.event_image_16x9 -}}
+<meta property="og:image" content="{{ . | absURL }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="675">
+<meta property="og:image:type" content="image/jpeg">
+{{ end -}}
+{{ with .Params.event_image_1x1 -}}
+<meta property="og:image" content="{{ . | absURL }}">
+<meta property="og:image:width" content="600">
+<meta property="og:image:height" content="600">
+{{ end -}}
 <meta property="event:start_time" content="{{ .Params.event_start_date }}">
 <meta property="event:end_time" content="{{ .Params.event_end_date }}">
 
@@ -17,6 +27,7 @@
 <meta name="twitter:title" content="{{ .Params.event_name }}">
 <meta name="twitter:description" content="{{ .Params.event_description }}">
 {{ with .Params.event_image_16x9 }}<meta name="twitter:image" content="{{ . | absURL }}">{{ end }}
+{{ with .Site.Params.twitter_handle }}<meta name="twitter:site" content="@{{ . }}">{{ end }}
 
 {{/* schema.org Event JSON-LD */}}
 {{ $attendanceMode := "OfflineEventAttendanceMode" }}
