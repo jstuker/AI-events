@@ -1,0 +1,33 @@
+<li class="event-card{{ if .Params.featured }} featured{{ end }}">
+  {{ if .Params.event_image_16x9 }}
+    <img
+      class="event-card-image"
+      src="{{ .Params.event_image_16x9 }}"
+      alt="{{ .Params.event_name }}"
+      loading="lazy"
+      decoding="async"
+      width="640"
+      height="360"
+    >
+  {{ else }}
+    <svg class="event-card-image" viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="640" height="360" fill="#e5e7eb"/>
+      <text x="320" y="180" text-anchor="middle" dominant-baseline="central" fill="#9ca3af" font-family="sans-serif" font-size="24">No image</text>
+    </svg>
+  {{ end }}
+  <div class="event-card-body">
+    {{ if and .Params.featured (eq .Params.featured_type "badge") }}<span class="badge">Featured</span>{{ end }}
+    <h2><a href="{{ .RelPermalink }}">{{ .Params.event_name }}</a></h2>
+    <div class="event-meta">
+      <span>{{ dateFormat "2 Jan 2006, 15:04" .Params.event_start_date }}</span>
+      <span>{{ .Params.location_name }}</span>
+      {{ with .Params.event_attendance_mode }}<span>{{ . }}</span>{{ end }}
+      {{ if eq .Params.event_price_type "free" }}<span>Free</span>
+      {{ else if eq .Params.event_price_type "paid" }}<span>{{ .Params.event_price_currency }} {{ .Params.event_price }}</span>
+      {{ else if eq .Params.event_price_type "range" }}<span>{{ .Params.event_price_currency }} {{ .Params.event_low_price }}–{{ .Params.event_high_price }}</span>
+      {{ end }}
+    </div>
+    <p style="margin-top: 0.5rem;">{{ .Params.event_description | truncate 200 }}</p>
+    {{ with .Params.tags }}<div style="margin-top: 0.5rem;">{{ range . }}<span class="tag">{{ . }}</span>{{ end }}</div>{{ end }}
+  </div>
+</li>

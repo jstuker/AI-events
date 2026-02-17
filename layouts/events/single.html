@@ -52,6 +52,15 @@
 {{ define "main" }}
 <style>
   .event-detail { max-width: 800px; }
+  .event-detail-image {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    background: #e5e7eb;
+  }
   .event-detail h1 { font-size: 2rem; margin-bottom: 0.5rem; }
   .event-header-meta { color: var(--color-muted); font-size: 0.875rem; margin-bottom: 1.5rem; }
   .event-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; padding: 1rem; background: #f9fafb; border-radius: 8px; }
@@ -67,6 +76,23 @@
 
 <article class="event-detail">
   <a href="{{ "/" | relURL }}" class="back-link">&larr; All Events</a>
+
+  {{ if .Params.event_image_16x9 }}
+    <img
+      class="event-detail-image"
+      src="{{ .Params.event_image_16x9 }}"
+      alt="{{ .Params.event_name }}"
+      loading="lazy"
+      decoding="async"
+      width="800"
+      height="450"
+    >
+  {{ else }}
+    <svg class="event-detail-image" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="800" height="450" fill="#e5e7eb"/>
+      <text x="400" y="225" text-anchor="middle" dominant-baseline="central" fill="#9ca3af" font-family="sans-serif" font-size="28">No image</text>
+    </svg>
+  {{ end }}
 
   {{ if and .Params.featured (eq .Params.featured_type "badge") }}<span class="badge-large">Featured Event</span>{{ end }}
   <h1>{{ .Params.event_name }}</h1>
