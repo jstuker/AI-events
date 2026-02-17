@@ -371,6 +371,8 @@ export function EventDetailPage() {
             errors={form.errors}
             setField={form.setField}
             setArray={form.setArray}
+            eventId={eventId}
+            token={token ?? undefined}
           />
         ) : (
           <EventDetailView event={event} />
