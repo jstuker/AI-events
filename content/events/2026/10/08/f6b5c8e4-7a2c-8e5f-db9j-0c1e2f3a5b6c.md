@@ -2,7 +2,7 @@
 event_id: f6b5c8e4-7a2c-8e5f-db9j-0c1e2f3a5b6c
 date: 2026-10-08T18:00:00+01:00
 slug: zurich-generative-ai-meetup
-status: review
+status: published
 source: form
 created_at: 2026-02-17T13:00:00+01:00
 updated_at: 2026-02-17T10:34:01.431Z
