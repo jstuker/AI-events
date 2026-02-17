@@ -1,8 +1,9 @@
 baseURL = '/'
 title = 'Swiss {ai} Weeks — Events'
-copyright = 'Event data published under CC-BY 4.0. Source code Apache 2.0.'
+copyright = 'Event data published under CC-BY 4.0.'
 buildFuture = true
 removePathAccents = true
+enableRobotsTXT = true
 
 # Default language
 defaultContentLanguage = 'en'
