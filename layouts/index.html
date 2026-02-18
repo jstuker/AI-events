@@ -2,17 +2,49 @@
 
 {{ define "main" }}
 {{ partial "event-card-styles.html" . }}
-{{ partial "event-listing-controls.html" . }}
 
 {{ $events := where (where .Site.RegularPages "Section" "events") "Params.status" "published" }}
-{{ $featured := where $events "Params.featured" true }}
-{{ $regular := where $events "Params.featured" "ne" true }}
+{{ $now := now }}
+{{ $today := time (printf "%d-%02d-%02d" $now.Year $now.Month $now.Day) }}
+{{ $currentYear := $now.Year }}
+
+{{/* Filter to current year only */}}
+{{ $yearEvents := slice }}
+{{ range $events }}
+  {{ if eq (.Date.Year) $currentYear }}
+    {{ $yearEvents = $yearEvents | append . }}
+  {{ end }}
+{{ end }}
+
+{{/* Split into upcoming (today+) and past (before today) */}}
+{{ $upcoming := slice }}
+{{ $past := slice }}
+{{ range $yearEvents }}
+  {{ $eventDate := time (dateFormat "2006-01-02" .Params.event_start_date) }}
+  {{ if ge $eventDate $today }}
+    {{ $upcoming = $upcoming | append . }}
+  {{ else }}
+    {{ $past = $past | append . }}
+  {{ end }}
+{{ end }}
+
+{{/* Sort upcoming by date ascending, past by date descending */}}
+{{ $upcoming = sort $upcoming "Params.event_start_date" "asc" }}
+{{ $past = sort $past "Params.event_start_date" "desc" }}
+
+{{ $featuredUpcoming := where $upcoming "Params.featured" true }}
+{{ $regularUpcoming := where $upcoming "Params.featured" "ne" true }}
+
+{{/* ── Upcoming Events ── */}}
+<h2 class="section-heading">Upcoming Events</h2>
+
+{{ partial "event-listing-controls.html" . }}
 
 <ul class="events-list" id="events-list">
-  {{- range $featured }}
+  {{- range $featuredUpcoming }}
   {{ partial "event-card.html" . }}
   {{- end }}
-  {{- range $regular }}
+  {{- range $regularUpcoming }}
   {{ partial "event-card.html" . }}
   {{- end }}
 </ul>
@@ -22,9 +54,85 @@
 </div>
 
 <div id="no-results" style="display:none; text-align:center; padding:3rem 1rem; color:var(--color-muted);">
-  <p style="font-size:1.25rem;">No events match your filters.</p>
+  <p style="font-size:1.25rem;">No upcoming events match your filters.</p>
   <p><button onclick="resetFilters()" style="color:var(--color-primary); background:none; border:none; cursor:pointer; font-size:1rem; text-decoration:underline;">Clear all filters</button></p>
 </div>
 
 {{ partial "event-listing-scripts.html" . }}
+
+{{/* ── Past Events ── */}}
+{{ if $past }}
+<h2 class="section-heading" style="margin-top:3rem;">Past Events</h2>
+
+<style>
+  .past-events-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+    margin-top: 1rem;
+  }
+  .past-events-table th {
+    text-align: left;
+    padding: 0.625rem 0.75rem;
+    border-bottom: 2px solid var(--color-border);
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+  .past-events-table td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: top;
+  }
+  .past-events-table tr:last-child td {
+    border-bottom: none;
+  }
+  .past-events-table a {
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+  .past-events-table a:hover {
+    text-decoration: underline;
+  }
+  .past-events-table .date-col {
+    white-space: nowrap;
+    color: var(--color-muted);
+    width: 120px;
+  }
+  .past-events-table .city-col {
+    white-space: nowrap;
+    color: var(--color-muted);
+    width: 140px;
+  }
+  @media (max-width: 600px) {
+    .past-events-table { font-size: 0.875rem; }
+    .past-events-table th,
+    .past-events-table td { padding: 0.375rem 0.5rem; }
+    .past-events-table .date-col { width: auto; }
+    .past-events-table .city-col { width: auto; }
+  }
+</style>
+
+<table class="past-events-table">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Event</th>
+      <th>City</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{ range $past }}
+    <tr>
+      <td class="date-col"><time datetime="{{ dateFormat "2006-01-02" .Params.event_start_date }}">{{ dateFormat "2 Jan 2006" .Params.event_start_date }}</time></td>
+      <td><a href="{{ .RelPermalink }}">{{ .Params.event_name }}</a></td>
+      <td class="city-col">{{ with .Params.cities }}{{ index . 0 }}{{ end }}</td>
+    </tr>
+    {{ end }}
+  </tbody>
+</table>
+{{ end }}
+
 {{ end }}
