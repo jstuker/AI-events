@@ -1,5 +1,5 @@
 baseURL = '/'
-title = 'Swiss {ai} Weeks — Events'
+title = 'Swiss {ai} Weeks — Events 2026'
 copyright = 'Event data published under CC-BY 4.0.'
 buildFuture = true
 removePathAccents = true
@@ -22,13 +22,13 @@ defaultContentLanguageInSubdir = false
     languageCode = 'en'
     languageName = 'English'
     weight = 1
-    title = 'Swiss {ai} Weeks — Events'
+    title = 'Swiss {ai} Weeks — Events 2026'
   [languages.de]
     languageCode = 'de'
     languageName = 'Deutsch'
     weight = 2
     disabled = true
-    title = 'Swiss {ai} Weeks — Events'
+    title = 'Swiss {ai} Weeks — Events 2026'
   [languages.fr]
     languageCode = 'fr'
     languageName = 'Français'

@@ -18,6 +18,9 @@
     "url": "https://github.com/jstuker/AI-events/issues"
   },
   "homepage": "https://github.com/jstuker/AI-events#readme",
+  "dependencies": {
+    "@vercel/blob": "^0.27.1"
+  },
   "devDependencies": {
     "@vercel/node": "^5.6.3"
   }
