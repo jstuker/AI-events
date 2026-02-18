@@ -665,8 +665,16 @@
     })
     .then(function(response) {
       if (!response.ok) {
-        return response.json().then(function(err) {
-          throw new Error(err.error || 'Upload failed');
+        return response.text().then(function(text) {
+          try {
+            var err = JSON.parse(text);
+            throw new Error(err.error || 'Upload failed');
+          } catch (parseErr) {
+            if (parseErr instanceof SyntaxError) {
+              throw new Error('Upload failed (server error). Please try again.');
+            }
+            throw parseErr;
+          }
         });
       }
       return response.json();
