@@ -127,6 +127,7 @@
   </style>
 </head>
 <body>
+  {{ if ne .Type "submit" }}
   <header>
     <div class="header-top">
       <h1><a href="{{ .Site.BaseURL }}">Swiss {ai} Weeks — Events 2026</a></h1>
@@ -142,6 +143,7 @@
     </nav>
     {{ end }}
   </header>
+  {{ end }}
   <main>
     {{ block "main" . }}{{ end }}
   </main>

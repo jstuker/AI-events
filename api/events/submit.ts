@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { del } from "@vercel/blob";
 
 // --- Rate limiting ---
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -51,7 +52,8 @@ interface SubmissionData {
   readonly event_low_price: number | null;
   readonly event_high_price: number | null;
   readonly event_price_currency: string;
-  readonly event_image_url: string;
+  readonly event_image_1x1: string;
+  readonly event_image_16x9: string;
   readonly location_name: string;
   readonly location_address: string;
   readonly organizer_name: string;
@@ -67,7 +69,7 @@ const VALID_LANGUAGES = ["de", "fr", "it", "en"];
 const VALID_CURRENCIES = ["CHF", "EUR", "USD"];
 
 function validateSubmission(
-  body: unknown
+  body: unknown,
 ): { data: SubmissionData } | { error: string } {
   if (!body || typeof body !== "object") {
     return { error: "Invalid request body" };
@@ -106,9 +108,7 @@ function validateSubmission(
     ? String(b.event_start_time).trim()
     : "";
   const eventEndDate = String(b.event_end_date).trim();
-  const eventEndTime = b.event_end_time
-    ? String(b.event_end_time).trim()
-    : "";
+  const eventEndTime = b.event_end_time ? String(b.event_end_time).trim() : "";
 
   // Validate email
   if (!EMAIL_PATTERN.test(contactEmail)) {
@@ -182,9 +182,7 @@ function validateSubmission(
       : null;
 
   // Validate optional organizer URL
-  const organizerUrl = b.organizer_url
-    ? String(b.organizer_url).trim()
-    : "";
+  const organizerUrl = b.organizer_url ? String(b.organizer_url).trim() : "";
   if (organizerUrl) {
     try {
       new URL(organizerUrl);
@@ -194,8 +192,7 @@ function validateSubmission(
   }
 
   // Sanitize text fields (strip HTML tags)
-  const sanitize = (str: string): string =>
-    str.replace(/<[^>]*>/g, "").trim();
+  const sanitize = (str: string): string => str.replace(/<[^>]*>/g, "").trim();
 
   return {
     data: {
@@ -212,20 +209,23 @@ function validateSubmission(
       event_attendance_mode: attendanceMode,
       event_language: languages,
       event_target_audience: sanitize(
-        b.event_target_audience ? String(b.event_target_audience) : ""
+        b.event_target_audience ? String(b.event_target_audience) : "",
       ).slice(0, 300),
       event_price_type: priceType,
       event_price: price,
       event_low_price: lowPrice,
       event_high_price: highPrice,
       event_price_currency: currency,
-      event_image_url: b.event_image_url
-        ? String(b.event_image_url).trim().slice(0, 500)
+      event_image_1x1: b.event_image_1x1
+        ? String(b.event_image_1x1).trim().slice(0, 1000)
+        : "",
+      event_image_16x9: b.event_image_16x9
+        ? String(b.event_image_16x9).trim().slice(0, 1000)
         : "",
       location_name: sanitize(String(b.location_name)).slice(0, 300),
       location_address: sanitize(String(b.location_address)).slice(0, 500),
       organizer_name: sanitize(
-        b.organizer_name ? String(b.organizer_name) : ""
+        b.organizer_name ? String(b.organizer_name) : "",
       ).slice(0, 300),
       organizer_url: organizerUrl.slice(0, 500),
     },
@@ -313,13 +313,8 @@ function buildContentFile(data: SubmissionData, eventId: string): string {
   lines.push(`event_price_availability: InStock`);
 
   // Images
-  if (data.event_image_url) {
-    lines.push(`event_image_1x1: ${data.event_image_url}`);
-    lines.push(`event_image_16x9: ${data.event_image_url}`);
-  } else {
-    lines.push(`event_image_1x1: ""`);
-    lines.push(`event_image_16x9: ""`);
-  }
+  lines.push(`event_image_1x1: ${yamlString(data.event_image_1x1)}`);
+  lines.push(`event_image_16x9: ${yamlString(data.event_image_16x9)}`);
 
   // Location
   lines.push(`location_name: ${yamlString(data.location_name)}`);
@@ -363,10 +358,61 @@ function yamlString(value: string): string {
   return value;
 }
 
+// --- Blob image helpers ---
+const BLOB_URL_PATTERN =
+  /^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\//;
+
+function isBlobUrl(url: string): boolean {
+  return BLOB_URL_PATTERN.test(url);
+}
+
+function extensionFromContentType(contentType: string): string {
+  const map: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/jpg": "jpg",
+    "image/png": "png",
+    "image/gif": "gif",
+  };
+  return map[contentType] || "jpg";
+}
+
+const FETCH_TIMEOUT_MS = 15_000;
+
+async function transferImageToGitHub(
+  blobUrl: string,
+  eventId: string,
+  imageLabel: string,
+): Promise<string> {
+  const response = await fetch(blobUrl, {
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+  });
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch blob image: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  const contentType = response.headers.get("content-type") || "image/jpeg";
+  const ext = extensionFromContentType(contentType);
+  const filePath = `static/images/events/${eventId}/${imageLabel}.${ext}`;
+  const buffer = Buffer.from(await response.arrayBuffer());
+
+  await createFileViaGitHub(filePath, buffer);
+  return `/images/events/${eventId}/${imageLabel}.${ext}`;
+}
+
+async function deleteBlobFile(blobUrl: string): Promise<void> {
+  try {
+    await del(blobUrl);
+  } catch (error) {
+    console.error("Failed to delete blob (non-blocking):", blobUrl, error);
+  }
+}
+
 // --- GitHub API ---
 async function createFileViaGitHub(
   filePath: string,
-  content: string
+  content: string | Buffer,
 ): Promise<void> {
   const token = process.env.GITHUB_SUBMISSION_TOKEN;
   const repo = process.env.GITHUB_REPO || "jstuker/AI-events";
@@ -375,7 +421,10 @@ async function createFileViaGitHub(
     throw new Error("GITHUB_SUBMISSION_TOKEN not configured");
   }
 
-  const encodedContent = Buffer.from(content).toString("base64");
+  const encodedContent =
+    typeof content === "string"
+      ? Buffer.from(content).toString("base64")
+      : content.toString("base64");
 
   const response = await fetch(
     `https://api.github.com/repos/${repo}/contents/${filePath}`,
@@ -391,24 +440,21 @@ async function createFileViaGitHub(
         content: encodedContent,
         branch: "main",
       }),
-    }
+    },
   );
 
   if (!response.ok) {
     const errorBody = await response.text();
     console.error(
       `GitHub API error: ${response.status} ${response.statusText}`,
-      errorBody
+      errorBody,
     );
     throw new Error(`GitHub API returned ${response.status}`);
   }
 }
 
 // --- Handler ---
-export default async function handler(
-  req: VercelRequest,
-  res: VercelResponse
-) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS
   const origin = req.headers.origin;
   const allowedOrigins = getAllowedOrigins();
@@ -454,10 +500,44 @@ export default async function handler(
   const month = dateParts[1];
   const day = dateParts[2];
   const filePath = `content/events/${year}/${month}/${day}/${eventId}.md`;
-  const content = buildContentFile(data, eventId);
 
   try {
+    // Transfer blob images to GitHub and get local paths
+    let localImage1x1 = "";
+    let localImage16x9 = "";
+    const blobUrlsToClean: string[] = [];
+
+    if (data.event_image_1x1 && isBlobUrl(data.event_image_1x1)) {
+      localImage1x1 = await transferImageToGitHub(
+        data.event_image_1x1,
+        eventId,
+        "image-1x1",
+      );
+      blobUrlsToClean.push(data.event_image_1x1);
+    }
+
+    if (data.event_image_16x9 && isBlobUrl(data.event_image_16x9)) {
+      localImage16x9 = await transferImageToGitHub(
+        data.event_image_16x9,
+        eventId,
+        "image-16x9",
+      );
+      blobUrlsToClean.push(data.event_image_16x9);
+    }
+
+    // Build content with local image paths
+    const dataWithLocalImages: SubmissionData = {
+      ...data,
+      event_image_1x1: localImage1x1,
+      event_image_16x9: localImage16x9,
+    };
+    const content = buildContentFile(dataWithLocalImages, eventId);
+
     await createFileViaGitHub(filePath, content);
+
+    // Best-effort blob cleanup (awaited so it runs before function freezes)
+    await Promise.allSettled(blobUrlsToClean.map(deleteBlobFile));
+
     res.status(201).json({
       success: true,
       event_id: eventId,

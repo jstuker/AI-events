@@ -156,6 +156,33 @@
     color: #991b1b;
     border: 1px solid #fca5a5;
   }
+  .file-input {
+    padding: 0.5rem;
+    border: 1px dashed var(--color-border);
+    border-radius: 6px;
+    background: var(--color-bg);
+    cursor: pointer;
+  }
+  .file-input:hover {
+    border-color: var(--color-primary);
+  }
+  .upload-status {
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    display: none;
+  }
+  .upload-status.uploading {
+    display: block;
+    color: #b45309;
+  }
+  .upload-status.done {
+    display: block;
+    color: #166534;
+  }
+  .upload-status.upload-error {
+    display: block;
+    color: #991b1b;
+  }
   @media (max-width: 600px) {
     .form-section { padding: 1rem; }
     .form-row { grid-template-columns: 1fr; }
@@ -190,7 +217,6 @@
       </div>
       <div class="form-group">
         <label for="contact_phone">Phone</label>
-        <span class="hint">Optional</span>
         <input type="tel" id="contact_phone" name="contact_phone" autocomplete="tel">
       </div>
     </div>
@@ -227,8 +253,7 @@
         <span class="error-message" id="event_start_date-error"></span>
       </div>
       <div class="form-group">
-        <label for="event_start_time">Start Time</label>
-        <span class="hint">Optional (Europe/Zurich)</span>
+        <label for="event_start_time">Start Time <span class="hint" style="display:inline;font-weight:400">(Europe/Zurich)</span></label>
         <input type="time" id="event_start_time" name="event_start_time">
       </div>
     </div>
@@ -240,8 +265,7 @@
         <span class="error-message" id="event_end_date-error"></span>
       </div>
       <div class="form-group">
-        <label for="event_end_time">End Time</label>
-        <span class="hint">Optional (Europe/Zurich)</span>
+        <label for="event_end_time">End Time <span class="hint" style="display:inline;font-weight:400">(Europe/Zurich)</span></label>
         <input type="time" id="event_end_time" name="event_end_time">
       </div>
     </div>
@@ -283,47 +307,41 @@
     </div>
 
     <div id="price-paid-fields" class="price-fields">
-      <div class="form-row">
-        <div class="form-group">
-          <label for="event_price">Price</label>
-          <input type="number" id="event_price" name="event_price" min="0" step="0.01">
-        </div>
-        <div class="form-group">
-          <label for="event_price_currency">Currency</label>
-          <select id="event_price_currency" name="event_price_currency">
-            <option value="CHF">CHF</option>
-            <option value="EUR">EUR</option>
-            <option value="USD">USD</option>
-          </select>
-        </div>
+      <div class="form-group">
+        <label for="event_price">Price in CHF</label>
+        <input type="number" id="event_price" name="event_price" min="0" step="0.01">
       </div>
     </div>
 
     <div id="price-range-fields" class="price-fields">
       <div class="form-row">
         <div class="form-group">
-          <label for="event_low_price">From Price</label>
+          <label for="event_low_price">From Price in CHF</label>
           <input type="number" id="event_low_price" name="event_low_price" min="0" step="0.01">
         </div>
         <div class="form-group">
-          <label for="event_high_price">To Price</label>
+          <label for="event_high_price">To Price in CHF</label>
           <input type="number" id="event_high_price" name="event_high_price" min="0" step="0.01">
         </div>
-      </div>
-      <div class="form-group">
-        <label for="event_price_currency_range">Currency</label>
-        <select id="event_price_currency_range" name="event_price_currency_range">
-          <option value="CHF">CHF</option>
-          <option value="EUR">EUR</option>
-          <option value="USD">USD</option>
-        </select>
       </div>
     </div>
 
     <div class="form-group">
-      <label for="event_image_url">Event Image URL</label>
-      <span class="hint">Link to a square (1:1, min 720px) or widescreen (16:9, min 720px wide) image.</span>
-      <input type="url" id="event_image_url" name="event_image_url" placeholder="https://">
+      <label for="event_image_1x1_file">Event Image 1:1</label>
+      <span class="hint">Square image (min 720 x 720 px). Max 10 MB. JPEG, PNG, or GIF.</span>
+      <input type="file" id="event_image_1x1_file" accept="image/jpeg,image/png,image/gif" class="file-input">
+      <input type="hidden" id="event_image_1x1" name="event_image_1x1">
+      <div class="upload-status" id="event_image_1x1_status"></div>
+      <span class="error-message" id="event_image_1x1_file-error"></span>
+    </div>
+
+    <div class="form-group">
+      <label for="event_image_16x9_file">Event Image 16:9</label>
+      <span class="hint">Widescreen image (min 1280 x 720 px). Max 10 MB. JPEG, PNG, or GIF.</span>
+      <input type="file" id="event_image_16x9_file" accept="image/jpeg,image/png,image/gif" class="file-input">
+      <input type="hidden" id="event_image_16x9" name="event_image_16x9">
+      <div class="upload-status" id="event_image_16x9_status"></div>
+      <span class="error-message" id="event_image_16x9_file-error"></span>
     </div>
   </div>
 
@@ -483,9 +501,6 @@
     }
 
     var priceType = getValue('event_price_type');
-    var currency = priceType === 'range'
-      ? getValue('event_price_currency_range')
-      : getValue('event_price_currency');
 
     return {
       contact_name: getValue('contact_name'),
@@ -505,8 +520,9 @@
       event_price: priceType === 'paid' ? parseFloat(getValue('event_price')) || null : null,
       event_low_price: priceType === 'range' ? parseFloat(getValue('event_low_price')) || null : null,
       event_high_price: priceType === 'range' ? parseFloat(getValue('event_high_price')) || null : null,
-      event_price_currency: priceType !== 'free' ? currency : 'CHF',
-      event_image_url: getValue('event_image_url'),
+      event_price_currency: 'CHF',
+      event_image_1x1: getValue('event_image_1x1'),
+      event_image_16x9: getValue('event_image_16x9'),
       location_name: getValue('location_name'),
       location_address: getValue('location_address'),
       organizer_name: getValue('organizer_name'),
@@ -524,6 +540,11 @@
   form.addEventListener('submit', function(e) {
     e.preventDefault();
     statusDiv.style.display = 'none';
+
+    if (uploadsInProgress > 0) {
+      showStatus('error', 'Please wait for image uploads to complete.');
+      return;
+    }
 
     if (!validate()) {
       // Scroll to first error
@@ -564,6 +585,88 @@
       submitBtn.disabled = false;
       submitBtn.textContent = 'Submit Event';
     });
+  });
+
+  // --- File upload handling ---
+  var ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+  var MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+  var uploadsInProgress = 0;
+
+  function setUploadStatus(fieldId, state, message) {
+    var statusEl = document.getElementById(fieldId + '_status');
+    if (!statusEl) return;
+    statusEl.className = 'upload-status ' + state;
+    statusEl.textContent = message;
+  }
+
+  function handleFileSelect(fileInput, hiddenInputId) {
+    var file = fileInput.files[0];
+    if (!file) return;
+
+    var hiddenInput = document.getElementById(hiddenInputId);
+    var fieldId = fileInput.id.replace('_file', '');
+
+    // Client-side validation
+    if (ALLOWED_TYPES.indexOf(file.type) === -1) {
+      setUploadStatus(fieldId, 'upload-error', 'Invalid file type. Use JPEG, PNG, or GIF.');
+      fileInput.value = '';
+      return;
+    }
+    if (file.size > MAX_SIZE) {
+      setUploadStatus(fieldId, 'upload-error', 'File too large. Maximum 10 MB.');
+      fileInput.value = '';
+      return;
+    }
+
+    // Upload file to server (server stores in Vercel Blob)
+    uploadsInProgress++;
+    submitBtn.disabled = true;
+    setUploadStatus(fieldId, 'uploading', 'Uploading ' + file.name + '...');
+
+    fetch('/api/upload', {
+      method: 'POST',
+      headers: { 'X-Content-Type': file.type },
+      body: file
+    })
+    .then(function(response) {
+      if (!response.ok) {
+        return response.json().then(function(err) {
+          throw new Error(err.error || 'Upload failed');
+        });
+      }
+      return response.json();
+    })
+    .then(function(data) {
+      hiddenInput.value = data.url;
+      setUploadStatus(fieldId, 'done', 'Uploaded: ' + file.name);
+    })
+    .catch(function(err) {
+      console.error('Upload error:', err);
+      setUploadStatus(fieldId, 'upload-error', err.message || 'Upload failed. Please try again.');
+      hiddenInput.value = '';
+      fileInput.value = '';
+    })
+    .finally(function() {
+      uploadsInProgress = Math.max(0, uploadsInProgress - 1);
+      if (uploadsInProgress === 0) {
+        submitBtn.disabled = false;
+      }
+    });
+  }
+
+  document.getElementById('event_image_1x1_file').addEventListener('change', function() {
+    handleFileSelect(this, 'event_image_1x1');
+  });
+  document.getElementById('event_image_16x9_file').addEventListener('change', function() {
+    handleFileSelect(this, 'event_image_16x9');
+  });
+
+  // Clear upload state on form reset
+  form.addEventListener('reset', function() {
+    document.getElementById('event_image_1x1').value = '';
+    document.getElementById('event_image_16x9').value = '';
+    setUploadStatus('event_image_1x1', '', '');
+    setUploadStatus('event_image_16x9', '', '');
   });
 
   // Clear field error on input
