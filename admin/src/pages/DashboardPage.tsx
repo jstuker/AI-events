@@ -1,44 +1,44 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import type { Event } from '../types/event'
-import { useAuth } from '../hooks/useAuth'
-import { fetchAllEvents } from '../services/event-service'
-import { computeDashboardStats } from '../utils/dashboard-stats'
-import { findAllDuplicateGroups } from '../utils/duplicate-detection'
-import { StatCard } from '../components/dashboard/StatCard'
-import { UpcomingEventsTable } from '../components/dashboard/UpcomingEventsTable'
-import { DuplicatesPanel } from '../components/dashboard/DuplicatesPanel'
+import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import type { Event } from "../types/event";
+import { useAuth } from "../hooks/useAuth";
+import { fetchAllEvents } from "../services/event-service";
+import { computeDashboardStats } from "../utils/dashboard-stats";
+import { findAllDuplicateGroups } from "../utils/duplicate-detection";
+import { StatCard } from "../components/dashboard/StatCard";
+import { UpcomingEventsTable } from "../components/dashboard/UpcomingEventsTable";
+import { DuplicatesPanel } from "../components/dashboard/DuplicatesPanel";
 
 export function DashboardPage() {
-  const { token } = useAuth()
-  const [events, setEvents] = useState<readonly Event[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { token } = useAuth();
+  const [events, setEvents] = useState<readonly Event[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const loadEvents = useCallback(async () => {
-    if (!token) return
-    setIsLoading(true)
-    setError(null)
+    if (!token) return;
+    setIsLoading(true);
+    setError(null);
     try {
-      const result = await fetchAllEvents(token)
-      setEvents(result)
+      const result = await fetchAllEvents(token);
+      setEvents(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load events')
+      setError(err instanceof Error ? err.message : "Failed to load events");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [token])
+  }, [token]);
 
   useEffect(() => {
-    loadEvents()
-  }, [loadEvents])
+    loadEvents();
+  }, [loadEvents]);
 
   if (isLoading) {
     return (
       <div className="py-12 text-center text-gray-500">
         Loading dashboard...
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -52,21 +52,28 @@ export function DashboardPage() {
           Retry
         </button>
       </div>
-    )
+    );
   }
 
-  const stats = computeDashboardStats(events)
-  const duplicateGroups = findAllDuplicateGroups(events)
+  const stats = computeDashboardStats(events);
+  const duplicateGroups = findAllDuplicateGroups(events);
 
   return (
     <div>
       <h2 className="mb-6 text-xl font-semibold text-gray-900">Dashboard</h2>
 
       <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+        <StatCard label="Total Events" value={stats.total} linkTo="/events" />
         <StatCard
-          label="Total Events"
-          value={stats.total}
-          linkTo="/events"
+          label="Pending Draft"
+          value={stats.pendingDraft}
+          highlight={stats.pendingDraft > 0}
+          linkTo="/events?status=draft"
+        />
+        <StatCard
+          label="Published"
+          value={stats.published}
+          linkTo="/events?status=published"
         />
         <StatCard
           label="Pending Review"
@@ -75,16 +82,10 @@ export function DashboardPage() {
           linkTo="/events?status=review"
         />
         <StatCard
-          label="Published"
-          value={stats.published}
-          linkTo="/events?status=published"
-        />
-        <StatCard
           label="Duplicates"
           value={duplicateGroups.length}
           highlight={duplicateGroups.length > 0}
         />
-        <StatCard label="This Week" value={stats.submissionsThisWeek} />
         <StatCard label="This Month" value={stats.submissionsThisMonth} />
       </div>
 
@@ -104,10 +105,7 @@ export function DashboardPage() {
       )}
 
       <div className="mb-6">
-        <UpcomingEventsTable
-          events={stats.upcoming}
-          title="Upcoming Events"
-        />
+        <UpcomingEventsTable events={stats.upcoming} title="Upcoming Events" />
       </div>
 
       <div className="flex gap-3">
@@ -125,5 +123,5 @@ export function DashboardPage() {
         </Link>
       </div>
     </div>
-  )
+  );
 }
