@@ -109,12 +109,12 @@ describe("CallbackPage", () => {
       });
     });
 
-    it("navigates to events when isAuthenticated becomes true", () => {
+    it("navigates to dashboard when isAuthenticated becomes true", () => {
       mockIsAuthenticated = true;
       vi.mocked(globalThis.fetch).mockReturnValue(new Promise(() => {}));
       renderCallback("?code=valid-code");
 
-      expect(mockNavigate).toHaveBeenCalledWith("/events", { replace: true });
+      expect(mockNavigate).toHaveBeenCalledWith("/", { replace: true });
     });
   });
 

@@ -1,7 +1,12 @@
-import { useAuth } from '../../hooks/useAuth'
+import { useAuth } from "../../hooks/useAuth";
 
 export function Header() {
-  const { user, logout } = useAuth()
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    window.location.href = "/";
+  };
 
   return (
     <header className="border-b border-gray-200 bg-white px-6 py-3">
@@ -21,9 +26,11 @@ export function Header() {
               alt={user.login}
               className="h-7 w-7 rounded-full"
             />
-            <span className="text-sm text-gray-600">{user.name ?? user.login}</span>
+            <span className="text-sm text-gray-600">
+              {user.name ?? user.login}
+            </span>
             <button
-              onClick={logout}
+              onClick={handleLogout}
               className="rounded px-2 py-1 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-700"
             >
               Sign out
@@ -32,5 +39,5 @@ export function Header() {
         )}
       </div>
     </header>
-  )
+  );
 }

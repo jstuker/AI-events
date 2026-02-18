@@ -60,7 +60,7 @@ export function CallbackPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/events", { replace: true });
+      navigate("/", { replace: true });
     }
   }, [isAuthenticated, navigate]);
 

@@ -39,8 +39,8 @@ export function computeDashboardStats(
 ): DashboardStats {
   const byStatus = countByStatus(events);
 
-  const pendingDraft = byStatus.draft + byStatus.pending;
-  const pendingReview = byStatus.review + byStatus.pending;
+  const pendingDraft = byStatus.draft;
+  const pendingReview = byStatus.review;
   const published = byStatus.published;
 
   const todayStr = now.toISOString().slice(0, 10);
