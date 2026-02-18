@@ -46,7 +46,7 @@ describe("DashboardPage", () => {
     expect(screen.getByText("Retry")).toBeInTheDocument();
   });
 
-  it("renders stat cards after loading events", async () => {
+  it("renders the four stat cards", async () => {
     const events = [
       createEvent({
         event_id: "1",
@@ -60,7 +60,7 @@ describe("DashboardPage", () => {
       }),
       createEvent({
         event_id: "3",
-        status: "pending",
+        status: "draft",
         event_start_date: "2099-03-01",
       }),
     ];
@@ -71,35 +71,40 @@ describe("DashboardPage", () => {
       expect(screen.getByText("Dashboard")).toBeInTheDocument();
     });
 
-    expect(screen.getByText("Total Events")).toBeInTheDocument();
+    expect(screen.getByText("Published")).toBeInTheDocument();
     expect(screen.getByText("Pending Draft")).toBeInTheDocument();
     expect(screen.getByText("Pending Review")).toBeInTheDocument();
-    expect(screen.getByText("Published")).toBeInTheDocument();
     expect(screen.getByText("Duplicates")).toBeInTheDocument();
-    expect(screen.getByText("This Month")).toBeInTheDocument();
   });
 
-  it("renders review queue when review/pending events exist", async () => {
+  it("renders Events to Review table with draft and review events", async () => {
     const events = [
       createEvent({
         event_id: "1",
+        status: "draft",
+        event_name: "Draft Event Alpha",
+        event_start_date: "2099-05-01",
+        location_name: "Bern",
+      }),
+      createEvent({
+        event_id: "2",
         status: "review",
-        event_name: "Review Event",
+        event_name: "Review Event Beta",
+        event_start_date: "2099-09-15",
+        location_name: "Geneva",
       }),
     ];
     mockFetchAllEvents.mockResolvedValueOnce(events);
     renderDashboard();
 
     await waitFor(() => {
-      // Event appears in both Review Queue and Upcoming Events tables
-      expect(screen.getAllByText("Review Event")).toHaveLength(2);
+      expect(screen.getByText("Events to Review")).toBeInTheDocument();
     });
-    // Section heading + quick action link
-    const reviewQueueElements = screen.getAllByText("Review Queue");
-    expect(reviewQueueElements).toHaveLength(2);
+    expect(screen.getByText("Draft Event Alpha")).toBeInTheDocument();
+    expect(screen.getByText("Review Event Beta")).toBeInTheDocument();
   });
 
-  it("renders upcoming events section", async () => {
+  it("renders Upcoming Events table", async () => {
     const events = [
       createEvent({
         event_id: "1",
@@ -117,20 +122,16 @@ describe("DashboardPage", () => {
     expect(screen.getByText("Future Event")).toBeInTheDocument();
   });
 
-  it("renders quick action links", async () => {
+  it("renders View All Events link", async () => {
     mockFetchAllEvents.mockResolvedValueOnce([]);
     renderDashboard();
 
     await waitFor(() => {
       expect(screen.getByText("View All Events")).toBeInTheDocument();
     });
-    expect(screen.getByText("Review Queue")).toBeInTheDocument();
 
-    const allEventsLink = screen.getByRole("link", { name: "View All Events" });
-    expect(allEventsLink).toHaveAttribute("href", "/events");
-
-    const reviewLink = screen.getByRole("link", { name: "Review Queue" });
-    expect(reviewLink).toHaveAttribute("href", "/events?status=review");
+    const link = screen.getByRole("link", { name: "View All Events" });
+    expect(link).toHaveAttribute("href", "/events");
   });
 
   it("shows duplicates panel when duplicate events exist", async () => {
@@ -154,20 +155,5 @@ describe("DashboardPage", () => {
     await waitFor(() => {
       expect(screen.getByText(/Potential Duplicates/)).toBeInTheDocument();
     });
-  });
-
-  it("hides review queue section when no review/pending events", async () => {
-    const events = [createEvent({ event_id: "1", status: "published" })];
-    mockFetchAllEvents.mockResolvedValueOnce(events);
-    renderDashboard();
-
-    await waitFor(() => {
-      expect(screen.getByText("Dashboard")).toBeInTheDocument();
-    });
-
-    expect(screen.getByText("Upcoming Events")).toBeInTheDocument();
-    // "Review Queue" should only appear as a quick action link, not as a section heading
-    const reviewQueueElements = screen.getAllByText("Review Queue");
-    expect(reviewQueueElements).toHaveLength(1); // only the quick action link
   });
 });

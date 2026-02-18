@@ -62,18 +62,17 @@ export function DashboardPage() {
     <div>
       <h2 className="mb-6 text-xl font-semibold text-gray-900">Dashboard</h2>
 
-      <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        <StatCard label="Total Events" value={stats.total} linkTo="/events" />
+      <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <StatCard
+          label="Published"
+          value={stats.published}
+          linkTo="/events?status=published"
+        />
         <StatCard
           label="Pending Draft"
           value={stats.pendingDraft}
           highlight={stats.pendingDraft > 0}
           linkTo="/events?status=draft"
-        />
-        <StatCard
-          label="Published"
-          value={stats.published}
-          linkTo="/events?status=published"
         />
         <StatCard
           label="Pending Review"
@@ -86,17 +85,14 @@ export function DashboardPage() {
           value={duplicateGroups.length}
           highlight={duplicateGroups.length > 0}
         />
-        <StatCard label="This Month" value={stats.submissionsThisMonth} />
       </div>
 
-      {stats.reviewQueue.length > 0 && (
-        <div className="mb-6">
-          <UpcomingEventsTable
-            events={stats.reviewQueue}
-            title="Review Queue"
-          />
-        </div>
-      )}
+      <div className="mb-6">
+        <UpcomingEventsTable
+          events={stats.eventsToReview}
+          title="Events to Review"
+        />
+      </div>
 
       {duplicateGroups.length > 0 && (
         <div className="mb-6">
@@ -108,18 +104,12 @@ export function DashboardPage() {
         <UpcomingEventsTable events={stats.upcoming} title="Upcoming Events" />
       </div>
 
-      <div className="flex gap-3">
+      <div>
         <Link
           to="/events"
           className="rounded border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
         >
           View All Events
-        </Link>
-        <Link
-          to="/events?status=review"
-          className="rounded border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-        >
-          Review Queue
         </Link>
       </div>
     </div>

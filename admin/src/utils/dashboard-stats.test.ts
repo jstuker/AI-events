@@ -8,14 +8,11 @@ describe("computeDashboardStats", () => {
   it("returns zero counts for empty events", () => {
     const stats = computeDashboardStats([], NOW);
 
-    expect(stats.total).toBe(0);
     expect(stats.pendingDraft).toBe(0);
     expect(stats.pendingReview).toBe(0);
     expect(stats.published).toBe(0);
-    expect(stats.submissionsThisWeek).toBe(0);
-    expect(stats.submissionsThisMonth).toBe(0);
     expect(stats.upcoming).toEqual([]);
-    expect(stats.reviewQueue).toEqual([]);
+    expect(stats.eventsToReview).toEqual([]);
     expect(stats.byStatus).toEqual({
       draft: 0,
       review: 0,
@@ -24,16 +21,6 @@ describe("computeDashboardStats", () => {
       published: 0,
       archived: 0,
     });
-  });
-
-  it("counts total events", () => {
-    const events = [
-      createEvent({ event_id: "1" }),
-      createEvent({ event_id: "2" }),
-      createEvent({ event_id: "3" }),
-    ];
-    const stats = computeDashboardStats(events, NOW);
-    expect(stats.total).toBe(3);
   });
 
   it("counts events by status", () => {
@@ -86,30 +73,11 @@ describe("computeDashboardStats", () => {
     expect(stats.published).toBe(2);
   });
 
-  it("counts submissions this week", () => {
-    const events = [
-      createEvent({ event_id: "1", created_at: "2026-02-15T10:00:00Z" }),
-      createEvent({ event_id: "2", created_at: "2026-02-10T10:00:00Z" }),
-      createEvent({ event_id: "3", created_at: "2026-02-01T10:00:00Z" }),
-    ];
-    const stats = computeDashboardStats(events, NOW);
-    expect(stats.submissionsThisWeek).toBe(2);
-  });
-
-  it("counts submissions this month", () => {
-    const events = [
-      createEvent({ event_id: "1", created_at: "2026-02-15T10:00:00Z" }),
-      createEvent({ event_id: "2", created_at: "2026-02-01T10:00:00Z" }),
-      createEvent({ event_id: "3", created_at: "2026-01-10T10:00:00Z" }),
-    ];
-    const stats = computeDashboardStats(events, NOW);
-    expect(stats.submissionsThisMonth).toBe(2);
-  });
-
-  it("returns upcoming events sorted by start date, limited to 10", () => {
+  it("returns upcoming published events sorted by start date, limited to 10", () => {
     const events = Array.from({ length: 15 }, (_, i) =>
       createEvent({
         event_id: `evt-${i}`,
+        status: "published",
         event_start_date: `2026-03-${String(15 - i).padStart(2, "0")}`,
       }),
     );
@@ -120,11 +88,23 @@ describe("computeDashboardStats", () => {
     expect(stats.upcoming[9]!.event_start_date).toBe("2026-03-10");
   });
 
+  it("excludes non-published events from upcoming", () => {
+    const events = [
+      createEvent({ event_id: "1", status: "draft", event_start_date: "2026-03-15" }),
+      createEvent({ event_id: "2", status: "published", event_start_date: "2026-03-15" }),
+      createEvent({ event_id: "3", status: "review", event_start_date: "2026-04-01" }),
+    ];
+    const stats = computeDashboardStats(events, NOW);
+
+    expect(stats.upcoming).toHaveLength(1);
+    expect(stats.upcoming[0]!.event_id).toBe("2");
+  });
+
   it("excludes past events from upcoming", () => {
     const events = [
-      createEvent({ event_id: "1", event_start_date: "2026-01-01" }),
-      createEvent({ event_id: "2", event_start_date: "2026-03-15" }),
-      createEvent({ event_id: "3", event_start_date: "2026-04-01" }),
+      createEvent({ event_id: "1", status: "published", event_start_date: "2026-01-01" }),
+      createEvent({ event_id: "2", status: "published", event_start_date: "2026-03-15" }),
+      createEvent({ event_id: "3", status: "published", event_start_date: "2026-04-01" }),
     ];
     const stats = computeDashboardStats(events, NOW);
 
@@ -132,15 +112,15 @@ describe("computeDashboardStats", () => {
     expect(stats.upcoming[0]!.event_id).toBe("2");
   });
 
-  it("includes events starting today in upcoming", () => {
+  it("includes published events starting today in upcoming", () => {
     const events = [
-      createEvent({ event_id: "1", event_start_date: "2026-02-16" }),
+      createEvent({ event_id: "1", status: "published", event_start_date: "2026-02-16" }),
     ];
     const stats = computeDashboardStats(events, NOW);
     expect(stats.upcoming).toHaveLength(1);
   });
 
-  it("returns review queue sorted by updated_at descending", () => {
+  it("returns events to review (draft + review) sorted by updated_at descending", () => {
     const events = [
       createEvent({
         event_id: "1",
@@ -149,7 +129,7 @@ describe("computeDashboardStats", () => {
       }),
       createEvent({
         event_id: "2",
-        status: "pending",
+        status: "draft",
         updated_at: "2026-02-15T00:00:00Z",
       }),
       createEvent({
@@ -158,21 +138,22 @@ describe("computeDashboardStats", () => {
         updated_at: "2026-02-12T00:00:00Z",
       }),
       createEvent({ event_id: "4", status: "published" }),
+      createEvent({ event_id: "5", status: "pending" }),
     ];
     const stats = computeDashboardStats(events, NOW);
 
-    expect(stats.reviewQueue).toHaveLength(3);
-    expect(stats.reviewQueue[0]!.event_id).toBe("2");
-    expect(stats.reviewQueue[1]!.event_id).toBe("3");
-    expect(stats.reviewQueue[2]!.event_id).toBe("1");
+    expect(stats.eventsToReview).toHaveLength(3);
+    expect(stats.eventsToReview[0]!.event_id).toBe("2");
+    expect(stats.eventsToReview[1]!.event_id).toBe("3");
+    expect(stats.eventsToReview[2]!.event_id).toBe("1");
   });
 
-  it("returns empty review queue when no draft/review/pending events", () => {
+  it("returns empty events to review when no draft/review events", () => {
     const events = [
       createEvent({ event_id: "1", status: "published" }),
       createEvent({ event_id: "2", status: "approved" }),
     ];
     const stats = computeDashboardStats(events, NOW);
-    expect(stats.reviewQueue).toEqual([]);
+    expect(stats.eventsToReview).toEqual([]);
   });
 });
