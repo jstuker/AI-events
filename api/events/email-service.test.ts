@@ -68,7 +68,7 @@ describe("getEmailConfig", () => {
     expect(config!.secure).toBe(false);
     expect(config!.fromEmail).toBe("user@example.com");
     expect(config!.fromName).toBe("Swiss {ai} Weeks");
-    expect(config!.notificationEmail).toBe("events@ai-weeks.ch");
+    expect(config!.notificationEmail).toBe("");
   });
 
   it("respects custom port and secure settings", () => {
@@ -128,7 +128,9 @@ describe("buildConfirmationEmail", () => {
   it("includes event name in subject", () => {
     const data = sampleEmailData();
     const email = buildConfirmationEmail(data);
-    expect(email.subject).toBe("Event submission received: Zurich AI Meetup 2026");
+    expect(email.subject).toBe(
+      "Event submission received: Zurich AI Meetup 2026",
+    );
   });
 
   it("includes contact name in HTML body", () => {
@@ -226,7 +228,7 @@ describe("buildNotificationEmail", () => {
   it("escapes HTML in all user-provided fields", () => {
     const data: SubmissionEmailData = {
       ...sampleEmailData(),
-      contact_name: 'Bob <img src=x onerror=alert(1)>',
+      contact_name: "Bob <img src=x onerror=alert(1)>",
       location_name: "Hall & Oates <venue>",
     };
     const email = buildNotificationEmail(data);

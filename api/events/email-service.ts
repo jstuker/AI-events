@@ -44,8 +44,7 @@ export function getEmailConfig(): EmailConfig | null {
     password,
     fromEmail: process.env.FROM_EMAIL || user,
     fromName: process.env.FROM_NAME || "Swiss {ai} Weeks",
-    notificationEmail:
-      process.env.NOTIFICATION_EMAIL || "events@ai-weeks.ch",
+    notificationEmail: process.env.NOTIFICATION_EMAIL || "",
   };
 }
 
@@ -232,10 +231,12 @@ export async function sendSubmissionEmails(
     return { sent: false, error: "SMTP not configured" };
   }
 
-  const results = await Promise.allSettled([
-    sendConfirmationEmail(config, data),
-    sendNotificationEmail(config, data),
-  ]);
+  const emailTasks: Promise<void>[] = [sendConfirmationEmail(config, data)];
+  if (config.notificationEmail) {
+    emailTasks.push(sendNotificationEmail(config, data));
+  }
+
+  const results = await Promise.allSettled(emailTasks);
 
   const errors: string[] = [];
   for (const result of results) {
