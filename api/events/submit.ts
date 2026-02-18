@@ -538,6 +538,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Best-effort blob cleanup (awaited so it runs before function freezes)
     await Promise.allSettled(blobUrlsToClean.map(deleteBlobFile));
 
+    // Submissions log entry (captured by Vercel log dashboard)
+    console.log(
+      JSON.stringify({
+        log_type: "submission",
+        event_id: eventId,
+        event_name: data.event_name,
+        contact_email: data.contact_email,
+        event_start_date: data.event_start_date,
+        file_path: filePath,
+        status: "draft",
+        source: "submission_form",
+        has_image_1x1: localImage1x1 !== "",
+        has_image_16x9: localImage16x9 !== "",
+        submitted_at: new Date().toISOString(),
+        ip: ip,
+      }),
+    );
+
     res.status(201).json({
       success: true,
       event_id: eventId,
@@ -545,6 +563,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (error) {
     console.error("Submission failed:", error);
+    console.log(
+      JSON.stringify({
+        log_type: "submission_error",
+        event_id: eventId,
+        event_name: data.event_name,
+        error: error instanceof Error ? error.message : "Unknown error",
+        submitted_at: new Date().toISOString(),
+        ip: ip,
+      }),
+    );
     res.status(500).json({
       error: "Failed to submit event. Please try again later.",
     });
