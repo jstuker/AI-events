@@ -1,0 +1,583 @@
+{{ define "title" }}Submit Your Event — {{ .Site.Title }}{{ end }}
+
+{{ define "main" }}
+<style>
+  .submit-hero {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .submit-hero h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+  .submit-hero p {
+    color: var(--color-muted);
+    font-size: 1.1rem;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .submit-form {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .form-section {
+    margin-bottom: 2rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    background: #fafafa;
+  }
+  .form-section h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    font-size: 0.95rem;
+  }
+  .form-group label .required {
+    color: #dc2626;
+    margin-left: 2px;
+  }
+  .form-group .hint {
+    display: block;
+    color: var(--color-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: inherit;
+    background: var(--color-bg);
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+  }
+  .form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+  .form-group input.error,
+  .form-group select.error,
+  .form-group textarea.error {
+    border-color: #dc2626;
+  }
+  .form-group .error-message {
+    color: #dc2626;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    display: none;
+  }
+  .form-group .error-message.visible {
+    display: block;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 400;
+    cursor: pointer;
+  }
+  .checkbox-group input[type="checkbox"] {
+    width: auto;
+  }
+  .price-fields {
+    display: none;
+  }
+  .price-fields.visible {
+    display: block;
+  }
+  .submit-btn {
+    display: block;
+    width: 100%;
+    padding: 0.875rem;
+    background: var(--color-primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .submit-btn:hover {
+    background: #1544b3;
+  }
+  .submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .form-status {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    display: none;
+  }
+  .form-status.success {
+    display: block;
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #86efac;
+  }
+  .form-status.error {
+    display: block;
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+  }
+  @media (max-width: 600px) {
+    .form-section { padding: 1rem; }
+    .form-row { grid-template-columns: 1fr; }
+    .submit-hero h2 { font-size: 1.5rem; }
+  }
+</style>
+
+<a href="{{ .Site.BaseURL }}" class="back-link">&larr; Back to events</a>
+
+<div class="submit-hero">
+  <h2>Submit all your AI events in 2026</h2>
+  <p>Thank you for contributing to Switzerland's AI community. Submit your event and Swiss {ai} Weeks will help you generating reach. Contact <a href="mailto:hello@swiss-ai-weeks.ch">hello@swiss-ai-weeks.ch</a> for input and questions.</p>
+</div>
+
+<form id="submit-form" class="submit-form" novalidate>
+
+  <!-- Section 1: Contact Information -->
+  <div class="form-section">
+    <h3>Your Contact Information</h3>
+
+    <div class="form-group">
+      <label for="contact_name">Contact Name <span class="required">*</span></label>
+      <input type="text" id="contact_name" name="contact_name" required autocomplete="name">
+      <span class="error-message" id="contact_name-error"></span>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="contact_email">Email <span class="required">*</span></label>
+        <input type="email" id="contact_email" name="contact_email" required autocomplete="email">
+        <span class="error-message" id="contact_email-error"></span>
+      </div>
+      <div class="form-group">
+        <label for="contact_phone">Phone</label>
+        <span class="hint">Optional</span>
+        <input type="tel" id="contact_phone" name="contact_phone" autocomplete="tel">
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: About the Event -->
+  <div class="form-section">
+    <h3>About the Event</h3>
+
+    <div class="form-group">
+      <label for="event_name">Event Name <span class="required">*</span></label>
+      <input type="text" id="event_name" name="event_name" required>
+      <span class="error-message" id="event_name-error"></span>
+    </div>
+
+    <div class="form-group">
+      <label for="event_description">Event Description <span class="required">*</span></label>
+      <span class="hint">Briefly describe the event, its goals, and what attendees can expect.</span>
+      <textarea id="event_description" name="event_description" required></textarea>
+      <span class="error-message" id="event_description-error"></span>
+    </div>
+
+    <div class="form-group">
+      <label for="event_url">Event URL <span class="required">*</span></label>
+      <span class="hint">Link to the event page or registration.</span>
+      <input type="url" id="event_url" name="event_url" required placeholder="https://">
+      <span class="error-message" id="event_url-error"></span>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="event_start_date">Start Date <span class="required">*</span></label>
+        <input type="date" id="event_start_date" name="event_start_date" required>
+        <span class="error-message" id="event_start_date-error"></span>
+      </div>
+      <div class="form-group">
+        <label for="event_start_time">Start Time</label>
+        <span class="hint">Optional (Europe/Zurich)</span>
+        <input type="time" id="event_start_time" name="event_start_time">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="event_end_date">End Date <span class="required">*</span></label>
+        <input type="date" id="event_end_date" name="event_end_date" required>
+        <span class="error-message" id="event_end_date-error"></span>
+      </div>
+      <div class="form-group">
+        <label for="event_end_time">End Time</label>
+        <span class="hint">Optional (Europe/Zurich)</span>
+        <input type="time" id="event_end_time" name="event_end_time">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="event_attendance_mode">Attendance Mode</label>
+      <select id="event_attendance_mode" name="event_attendance_mode">
+        <option value="presence">In Person</option>
+        <option value="online">Online</option>
+        <option value="hybrid">Hybrid</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Event Language</label>
+      <span class="hint">Select all that apply.</span>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="event_language" value="de"> Deutsch</label>
+        <label><input type="checkbox" name="event_language" value="fr"> Français</label>
+        <label><input type="checkbox" name="event_language" value="it"> Italiano</label>
+        <label><input type="checkbox" name="event_language" value="en"> English</label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="event_target_audience">Target Audience</label>
+      <span class="hint">E.g. developers, researchers, business leaders, students</span>
+      <input type="text" id="event_target_audience" name="event_target_audience">
+    </div>
+
+    <!-- Pricing -->
+    <div class="form-group">
+      <label for="event_price_type">Pricing</label>
+      <select id="event_price_type" name="event_price_type">
+        <option value="free">Free</option>
+        <option value="paid">Paid (fixed price)</option>
+        <option value="range">Paid (price range)</option>
+      </select>
+    </div>
+
+    <div id="price-paid-fields" class="price-fields">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="event_price">Price</label>
+          <input type="number" id="event_price" name="event_price" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label for="event_price_currency">Currency</label>
+          <select id="event_price_currency" name="event_price_currency">
+            <option value="CHF">CHF</option>
+            <option value="EUR">EUR</option>
+            <option value="USD">USD</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="price-range-fields" class="price-fields">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="event_low_price">From Price</label>
+          <input type="number" id="event_low_price" name="event_low_price" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label for="event_high_price">To Price</label>
+          <input type="number" id="event_high_price" name="event_high_price" min="0" step="0.01">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="event_price_currency_range">Currency</label>
+        <select id="event_price_currency_range" name="event_price_currency_range">
+          <option value="CHF">CHF</option>
+          <option value="EUR">EUR</option>
+          <option value="USD">USD</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="event_image_url">Event Image URL</label>
+      <span class="hint">Link to a square (1:1, min 720px) or widescreen (16:9, min 720px wide) image.</span>
+      <input type="url" id="event_image_url" name="event_image_url" placeholder="https://">
+    </div>
+  </div>
+
+  <!-- Section 3: Location & Organizer -->
+  <div class="form-section">
+    <h3>About the Location and the Organizer</h3>
+
+    <div class="form-group">
+      <label for="location_name">Venue / Location Name <span class="required">*</span></label>
+      <input type="text" id="location_name" name="location_name" required>
+      <span class="error-message" id="location_name-error"></span>
+    </div>
+
+    <div class="form-group">
+      <label for="location_address">Location Address <span class="required">*</span></label>
+      <span class="hint">The venue's detailed street address.</span>
+      <input type="text" id="location_address" name="location_address" required>
+      <span class="error-message" id="location_address-error"></span>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="organizer_name">Organizer Name</label>
+        <input type="text" id="organizer_name" name="organizer_name">
+      </div>
+      <div class="form-group">
+        <label for="organizer_url">Organizer URL</label>
+        <input type="url" id="organizer_url" name="organizer_url" placeholder="https://">
+      </div>
+    </div>
+  </div>
+
+  <button type="submit" class="submit-btn" id="submit-btn">Submit Event</button>
+
+  <div id="form-status" class="form-status"></div>
+</form>
+
+<script>
+(function() {
+  'use strict';
+
+  var form = document.getElementById('submit-form');
+  var submitBtn = document.getElementById('submit-btn');
+  var statusDiv = document.getElementById('form-status');
+  var priceTypeSelect = document.getElementById('event_price_type');
+  var pricePaidFields = document.getElementById('price-paid-fields');
+  var priceRangeFields = document.getElementById('price-range-fields');
+
+  // Toggle price fields based on price type
+  priceTypeSelect.addEventListener('change', function() {
+    pricePaidFields.classList.toggle('visible', this.value === 'paid');
+    priceRangeFields.classList.toggle('visible', this.value === 'range');
+  });
+
+  // Set minimum dates to today
+  var today = new Date().toISOString().split('T')[0];
+  document.getElementById('event_start_date').setAttribute('min', today);
+  document.getElementById('event_end_date').setAttribute('min', today);
+
+  // Sync end date minimum to start date
+  document.getElementById('event_start_date').addEventListener('change', function() {
+    var endDate = document.getElementById('event_end_date');
+    endDate.setAttribute('min', this.value);
+    if (endDate.value && endDate.value < this.value) {
+      endDate.value = this.value;
+    }
+  });
+
+  var REQUIRED_FIELDS = [
+    { id: 'contact_name', label: 'Contact Name' },
+    { id: 'contact_email', label: 'Email', type: 'email' },
+    { id: 'event_name', label: 'Event Name' },
+    { id: 'event_description', label: 'Event Description' },
+    { id: 'event_url', label: 'Event URL', type: 'url' },
+    { id: 'event_start_date', label: 'Start Date' },
+    { id: 'event_end_date', label: 'End Date' },
+    { id: 'location_name', label: 'Location Name' },
+    { id: 'location_address', label: 'Location Address' }
+  ];
+
+  function clearErrors() {
+    var errorEls = form.querySelectorAll('.error-message');
+    for (var i = 0; i < errorEls.length; i++) {
+      errorEls[i].classList.remove('visible');
+      errorEls[i].textContent = '';
+    }
+    var inputEls = form.querySelectorAll('.error');
+    for (var j = 0; j < inputEls.length; j++) {
+      inputEls[j].classList.remove('error');
+    }
+  }
+
+  function showError(fieldId, message) {
+    var input = document.getElementById(fieldId);
+    var errorEl = document.getElementById(fieldId + '-error');
+    if (input) input.classList.add('error');
+    if (errorEl) {
+      errorEl.textContent = message;
+      errorEl.classList.add('visible');
+    }
+  }
+
+  function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  function validateUrl(url) {
+    try { new URL(url); return true; } catch (_) { return false; }
+  }
+
+  function validate() {
+    clearErrors();
+    var valid = true;
+
+    for (var i = 0; i < REQUIRED_FIELDS.length; i++) {
+      var field = REQUIRED_FIELDS[i];
+      var el = document.getElementById(field.id);
+      var value = el ? el.value.trim() : '';
+
+      if (!value) {
+        showError(field.id, field.label + ' is required.');
+        valid = false;
+        continue;
+      }
+
+      if (field.type === 'email' && !validateEmail(value)) {
+        showError(field.id, 'Please enter a valid email address.');
+        valid = false;
+      }
+      if (field.type === 'url' && !validateUrl(value)) {
+        showError(field.id, 'Please enter a valid URL (starting with https://).');
+        valid = false;
+      }
+    }
+
+    // Validate end date >= start date
+    var startDate = document.getElementById('event_start_date').value;
+    var endDate = document.getElementById('event_end_date').value;
+    if (startDate && endDate && endDate < startDate) {
+      showError('event_end_date', 'End date must be on or after start date.');
+      valid = false;
+    }
+
+    return valid;
+  }
+
+  function getFormData() {
+    var getValue = function(id) {
+      var el = document.getElementById(id);
+      return el ? el.value.trim() : '';
+    };
+
+    var languages = [];
+    var langCheckboxes = form.querySelectorAll('input[name="event_language"]:checked');
+    for (var i = 0; i < langCheckboxes.length; i++) {
+      languages.push(langCheckboxes[i].value);
+    }
+
+    var priceType = getValue('event_price_type');
+    var currency = priceType === 'range'
+      ? getValue('event_price_currency_range')
+      : getValue('event_price_currency');
+
+    return {
+      contact_name: getValue('contact_name'),
+      contact_email: getValue('contact_email'),
+      contact_phone: getValue('contact_phone'),
+      event_name: getValue('event_name'),
+      event_description: getValue('event_description'),
+      event_url: getValue('event_url'),
+      event_start_date: getValue('event_start_date'),
+      event_start_time: getValue('event_start_time'),
+      event_end_date: getValue('event_end_date'),
+      event_end_time: getValue('event_end_time'),
+      event_attendance_mode: getValue('event_attendance_mode'),
+      event_language: languages,
+      event_target_audience: getValue('event_target_audience'),
+      event_price_type: priceType,
+      event_price: priceType === 'paid' ? parseFloat(getValue('event_price')) || null : null,
+      event_low_price: priceType === 'range' ? parseFloat(getValue('event_low_price')) || null : null,
+      event_high_price: priceType === 'range' ? parseFloat(getValue('event_high_price')) || null : null,
+      event_price_currency: priceType !== 'free' ? currency : 'CHF',
+      event_image_url: getValue('event_image_url'),
+      location_name: getValue('location_name'),
+      location_address: getValue('location_address'),
+      organizer_name: getValue('organizer_name'),
+      organizer_url: getValue('organizer_url')
+    };
+  }
+
+  function showStatus(type, message) {
+    statusDiv.className = 'form-status ' + type;
+    statusDiv.textContent = message;
+    statusDiv.style.display = 'block';
+    statusDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    statusDiv.style.display = 'none';
+
+    if (!validate()) {
+      // Scroll to first error
+      var firstError = form.querySelector('.error');
+      if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    var data = getFormData();
+
+    fetch('/api/events/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(function(response) {
+      return response.json().then(function(body) {
+        return { ok: response.ok, body: body };
+      });
+    })
+    .then(function(result) {
+      if (result.ok) {
+        showStatus('success', 'Thank you! Your event has been submitted for review. We will get back to you shortly.');
+        form.reset();
+        pricePaidFields.classList.remove('visible');
+        priceRangeFields.classList.remove('visible');
+      } else {
+        showStatus('error', result.body.error || 'Something went wrong. Please try again.');
+      }
+    })
+    .catch(function() {
+      showStatus('error', 'Network error. Please check your connection and try again.');
+    })
+    .finally(function() {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Event';
+    });
+  });
+
+  // Clear field error on input
+  form.addEventListener('input', function(e) {
+    var target = e.target;
+    if (target.classList.contains('error')) {
+      target.classList.remove('error');
+      var errorEl = document.getElementById(target.id + '-error');
+      if (errorEl) {
+        errorEl.classList.remove('visible');
+        errorEl.textContent = '';
+      }
+    }
+  });
+})();
+</script>
+{{ end }}
