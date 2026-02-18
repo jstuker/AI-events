@@ -8,6 +8,7 @@ import {
   isBlobUrl,
   extensionFromContentType,
 } from "./submission-utils.js";
+import { sendSubmissionEmails } from "./email-service.js";
 
 // --- Rate limiting ---
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -203,6 +204,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Best-effort blob cleanup (awaited so it runs before function freezes)
     await Promise.allSettled(blobUrlsToClean.map(deleteBlobFile));
 
+    // Send confirmation and notification emails (non-blocking)
+    const emailResult = await sendSubmissionEmails({
+      event_id: eventId,
+      event_name: data.event_name,
+      event_start_date: data.event_start_date,
+      event_end_date: data.event_end_date,
+      event_url: data.event_url,
+      contact_name: data.contact_name,
+      contact_email: data.contact_email,
+      location_name: data.location_name,
+      organizer_name: data.organizer_name,
+    });
+
     // Submissions log entry (captured by Vercel log dashboard)
     console.log(
       JSON.stringify({
@@ -216,6 +230,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         source: "submission_form",
         has_image_1x1: localImage1x1 !== "",
         has_image_16x9: localImage16x9 !== "",
+        emails_sent: emailResult.sent,
         submitted_at: new Date().toISOString(),
         ip: ip,
       }),
@@ -224,6 +239,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(201).json({
       success: true,
       event_id: eventId,
+      event_name: data.event_name,
       message: "Event submitted successfully. It will be reviewed shortly.",
     });
   } catch (error) {

@@ -21,10 +21,12 @@
   },
   "homepage": "https://github.com/jstuker/AI-events#readme",
   "dependencies": {
-    "@vercel/blob": "^0.27.1"
+    "@vercel/blob": "^0.27.1",
+    "nodemailer": "^8.0.1"
   },
   "devDependencies": {
     "@types/node": "^25.2.3",
+    "@types/nodemailer": "^7.0.10",
     "@vercel/node": "^5.6.3",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"

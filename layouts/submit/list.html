@@ -149,6 +149,25 @@
     background: #dcfce7;
     color: #166534;
     border: 1px solid #86efac;
+    text-align: left;
+    padding: 1.5rem;
+  }
+  .form-status.success h4 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem;
+  }
+  .form-status.success p {
+    margin: 0.35rem 0;
+    line-height: 1.5;
+  }
+  .form-status.success .submission-id {
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: #15803d;
+    margin-top: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #86efac;
   }
   .form-status.error {
     display: block;
@@ -390,6 +409,12 @@
   var pricePaidFields = document.getElementById('price-paid-fields');
   var priceRangeFields = document.getElementById('price-range-fields');
 
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+  }
+
   // Toggle price fields based on price type
   priceTypeSelect.addEventListener('change', function() {
     pricePaidFields.classList.toggle('visible', this.value === 'paid');
@@ -530,9 +555,13 @@
     };
   }
 
-  function showStatus(type, message) {
+  function showStatus(type, message, useHtml) {
     statusDiv.className = 'form-status ' + type;
-    statusDiv.textContent = message;
+    if (useHtml) {
+      statusDiv.innerHTML = message;
+    } else {
+      statusDiv.textContent = message;
+    }
     statusDiv.style.display = 'block';
     statusDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
@@ -570,7 +599,13 @@
     })
     .then(function(result) {
       if (result.ok) {
-        showStatus('success', 'Thank you! Your event has been submitted for review. We will get back to you shortly.');
+        var eventName = result.body.event_name || 'Your event';
+        var eventId = result.body.event_id || '';
+        var html = '<h4>Thank you for your submission!</h4>'
+          + '<p><strong>' + escapeHtml(eventName) + '</strong> has been submitted for review by the Swiss {ai} Weeks team.</p>'
+          + '<p>We have sent a confirmation to your email address. You will be notified once your event has been reviewed and published.</p>'
+          + (eventId ? '<p class="submission-id">Submission ID: ' + escapeHtml(eventId) + '</p>' : '');
+        showStatus('success', html, true);
         form.reset();
         pricePaidFields.classList.remove('visible');
         priceRangeFields.classList.remove('visible');
