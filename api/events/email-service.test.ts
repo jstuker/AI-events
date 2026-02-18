@@ -14,7 +14,9 @@ function sampleEmailData(): SubmissionEmailData {
     event_id: "abc-123-def",
     event_name: "Zurich AI Meetup 2026",
     event_start_date: "2026-09-17",
+    event_start_time: "18:00",
     event_end_date: "2026-09-17",
+    event_end_time: "21:00",
     event_url: "https://example.com/event",
     contact_name: "Max Muster",
     contact_email: "max@example.com",
@@ -143,7 +145,7 @@ describe("buildConfirmationEmail", () => {
     const data = sampleEmailData();
     const email = buildConfirmationEmail(data);
     expect(email.html).toContain("Zurich AI Meetup 2026");
-    expect(email.html).toContain("2026-09-17");
+    expect(email.html).toContain("2026-09-17 18:00");
     expect(email.html).toContain("ETH Zurich");
     expect(email.html).toContain("abc-123-def");
   });
@@ -152,8 +154,23 @@ describe("buildConfirmationEmail", () => {
     const data = sampleEmailData();
     const email = buildConfirmationEmail(data);
     expect(email.text).toContain("Zurich AI Meetup 2026");
+    expect(email.text).toContain("Start: 2026-09-17 18:00");
+    expect(email.text).toContain("End: 2026-09-17 21:00");
     expect(email.text).toContain("ETH Zurich");
     expect(email.text).toContain("abc-123-def");
+  });
+
+  it("shows date only when time is empty", () => {
+    const data: SubmissionEmailData = {
+      ...sampleEmailData(),
+      event_start_time: "",
+      event_end_time: "",
+    };
+    const email = buildConfirmationEmail(data);
+    expect(email.text).toContain("Start: 2026-09-17");
+    expect(email.text).not.toContain("Start: 2026-09-17 ");
+    expect(email.text).toContain("End: 2026-09-17");
+    expect(email.text).not.toContain("End: 2026-09-17 ");
   });
 
   it("escapes HTML in event name", () => {

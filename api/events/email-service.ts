@@ -17,7 +17,9 @@ export interface SubmissionEmailData {
   readonly event_id: string;
   readonly event_name: string;
   readonly event_start_date: string;
+  readonly event_start_time: string;
   readonly event_end_date: string;
+  readonly event_end_time: string;
   readonly event_url: string;
   readonly contact_name: string;
   readonly contact_email: string;
@@ -89,8 +91,8 @@ export function buildConfirmationEmail(data: SubmissionEmailData): {
       <p style="margin:0 0 16px;line-height:1.6">We have received your event submission and it is now under review by the Swiss {ai} Weeks team.</p>
       <table style="width:100%;border-collapse:collapse;margin:16px 0">
         <tr><td style="padding:8px 12px;border-bottom:1px solid #eee;color:#666;width:140px">Event</td><td style="padding:8px 12px;border-bottom:1px solid #eee;font-weight:600">${escapeHtml(data.event_name)}</td></tr>
-        <tr><td style="padding:8px 12px;border-bottom:1px solid #eee;color:#666">Start date</td><td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(data.event_start_date)}</td></tr>
-        <tr><td style="padding:8px 12px;border-bottom:1px solid #eee;color:#666">End date</td><td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(data.event_end_date)}</td></tr>
+        <tr><td style="padding:8px 12px;border-bottom:1px solid #eee;color:#666">Start</td><td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(formatDateTime(data.event_start_date, data.event_start_time))}</td></tr>
+        <tr><td style="padding:8px 12px;border-bottom:1px solid #eee;color:#666">End</td><td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(formatDateTime(data.event_end_date, data.event_end_time))}</td></tr>
         <tr><td style="padding:8px 12px;border-bottom:1px solid #eee;color:#666">Location</td><td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(data.location_name)}</td></tr>
         <tr><td style="padding:8px 12px;border-bottom:1px solid #eee;color:#666">Submission ID</td><td style="padding:8px 12px;border-bottom:1px solid #eee;font-family:monospace;font-size:13px">${escapeHtml(data.event_id)}</td></tr>
       </table>
@@ -108,8 +110,8 @@ Dear ${data.contact_name},
 We have received your event submission and it is now under review by the Swiss {ai} Weeks team.
 
 Event: ${data.event_name}
-Start date: ${data.event_start_date}
-End date: ${data.event_end_date}
+Start: ${formatDateTime(data.event_start_date, data.event_start_time)}
+End: ${formatDateTime(data.event_end_date, data.event_end_time)}
 Location: ${data.location_name}
 Submission ID: ${data.event_id}
 
@@ -138,8 +140,8 @@ export function buildNotificationEmail(data: SubmissionEmailData): {
       <p style="margin:0 0 16px;line-height:1.6">A new event has been submitted via the public form and needs review.</p>
       <table style="width:100%;border-collapse:collapse;margin:16px 0">
         <tr><td style="padding:8px 12px;border-bottom:1px solid #eee;color:#666;width:140px">Event</td><td style="padding:8px 12px;border-bottom:1px solid #eee;font-weight:600">${escapeHtml(data.event_name)}</td></tr>
-        <tr><td style="padding:8px 12px;border-bottom:1px solid #eee;color:#666">Start date</td><td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(data.event_start_date)}</td></tr>
-        <tr><td style="padding:8px 12px;border-bottom:1px solid #eee;color:#666">End date</td><td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(data.event_end_date)}</td></tr>
+        <tr><td style="padding:8px 12px;border-bottom:1px solid #eee;color:#666">Start</td><td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(formatDateTime(data.event_start_date, data.event_start_time))}</td></tr>
+        <tr><td style="padding:8px 12px;border-bottom:1px solid #eee;color:#666">End</td><td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(formatDateTime(data.event_end_date, data.event_end_time))}</td></tr>
         <tr><td style="padding:8px 12px;border-bottom:1px solid #eee;color:#666">Location</td><td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(data.location_name)}</td></tr>
         <tr><td style="padding:8px 12px;border-bottom:1px solid #eee;color:#666">Organizer</td><td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(data.organizer_name || "Not provided")}</td></tr>
         <tr><td style="padding:8px 12px;border-bottom:1px solid #eee;color:#666">Contact</td><td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(data.contact_name)} &lt;${escapeHtml(data.contact_email)}&gt;</td></tr>
@@ -157,8 +159,8 @@ export function buildNotificationEmail(data: SubmissionEmailData): {
 A new event has been submitted via the public form and needs review.
 
 Event: ${data.event_name}
-Start date: ${data.event_start_date}
-End date: ${data.event_end_date}
+Start: ${formatDateTime(data.event_start_date, data.event_start_time)}
+End: ${formatDateTime(data.event_end_date, data.event_end_time)}
 Location: ${data.location_name}
 Organizer: ${data.organizer_name || "Not provided"}
 Contact: ${data.contact_name} <${data.contact_email}>
@@ -273,6 +275,10 @@ export async function sendSubmissionEmails(
 }
 
 // --- Helpers ---
+
+function formatDateTime(date: string, time: string): string {
+  return time ? `${date} ${time}` : date;
+}
 
 function escapeHtml(str: string): string {
   return str
