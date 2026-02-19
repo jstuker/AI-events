@@ -1,43 +1,13 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { createRateLimitMap, isRateLimited, getClientIp } from '../lib/rate-limit.js'
+import { getAllowedOrigins } from '../lib/cors.js'
 
-// Simple in-memory rate limiting (resets on cold start, but still useful)
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
+const rateLimitMap = createRateLimitMap()
 const RATE_LIMIT_WINDOW_MS = 60_000
 const RATE_LIMIT_MAX = 10
 
-function isRateLimited(ip: string): boolean {
-  const now = Date.now()
-  const entry = rateLimitMap.get(ip)
-
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS })
-    return false
-  }
-
-  entry.count += 1
-  return entry.count > RATE_LIMIT_MAX
-}
-
 // GitHub OAuth codes are alphanumeric, ~20 characters
 const GITHUB_CODE_PATTERN = /^[a-zA-Z0-9]{10,40}$/
-
-function getAllowedOrigins(): readonly string[] {
-  const vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
-  const origins: string[] = ['https://ai-weeks.ch']
-  if (vercelUrl) {
-    origins.push(`https://${vercelUrl}`)
-  }
-  // Allow preview deployment origins
-  const vercelBranchUrl = process.env.VERCEL_BRANCH_URL
-  if (vercelBranchUrl) {
-    origins.push(`https://${vercelBranchUrl}`)
-  }
-  const vercelDeployUrl = process.env.VERCEL_URL
-  if (vercelDeployUrl) {
-    origins.push(`https://${vercelDeployUrl}`)
-  }
-  return origins
-}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -54,8 +24,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Rate limiting by IP
-  const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ?? 'unknown'
-  if (isRateLimited(ip)) {
+  const ip = getClientIp(req.headers as Record<string, string | string[] | undefined>)
+  if (isRateLimited(rateLimitMap, ip, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS)) {
     res.setHeader('Retry-After', '60')
     res.status(429).json({ error: 'Too many requests. Please try again later.' })
     return

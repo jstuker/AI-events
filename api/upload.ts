@@ -1,5 +1,11 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { put } from "@vercel/blob";
+import {
+  createRateLimitMap,
+  isRateLimited,
+  getClientIp,
+} from "./lib/rate-limit.js";
+import { getAllowedOrigins } from "./lib/cors.js";
 
 // Disable default body parsing so we can read raw file bytes
 export const config = {
@@ -8,36 +14,9 @@ export const config = {
   },
 };
 
-// --- Rate limiting ---
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const rateLimitMap = createRateLimitMap();
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 20;
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(ip);
-
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return false;
-  }
-
-  const updated = { count: entry.count + 1, resetAt: entry.resetAt };
-  rateLimitMap.set(ip, updated);
-  return updated.count > RATE_LIMIT_MAX;
-}
-
-// --- CORS helpers ---
-function getAllowedOrigins(): readonly string[] {
-  const origins: string[] = ["https://ai-weeks.ch"];
-  const vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL;
-  if (vercelUrl) origins.push(`https://${vercelUrl}`);
-  const vercelBranchUrl = process.env.VERCEL_BRANCH_URL;
-  if (vercelBranchUrl) origins.push(`https://${vercelBranchUrl}`);
-  const vercelDeployUrl = process.env.VERCEL_URL;
-  if (vercelDeployUrl) origins.push(`https://${vercelDeployUrl}`);
-  return origins;
-}
 
 const ALLOWED_CONTENT_TYPES = new Set([
   "image/jpeg",
@@ -68,10 +47,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Rate limiting
-  const ip =
-    (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ??
-    "unknown";
-  if (isRateLimited(ip)) {
+  const ip = getClientIp(
+    req.headers as Record<string, string | string[] | undefined>,
+  );
+  if (isRateLimited(rateLimitMap, ip, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS)) {
     res.setHeader("Retry-After", "60");
     res.status(429).json({
       error: "Too many uploads. Please try again in a minute.",
