@@ -76,6 +76,12 @@
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 500;
+  transition: opacity 0.2s, color 0.2s;
+}
+.btn-action:disabled {
+  color: var(--color-muted);
+  cursor: default;
+  opacity: 0.5;
 }
 .btn-load-more {
   padding: 0.625rem 1.5rem;
