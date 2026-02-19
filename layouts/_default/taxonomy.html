@@ -20,30 +20,8 @@
 
 {{ else }}
 {{/* Taxonomy overview page: list all terms with event counts */}}
-<style>
-  .taxonomy-list { list-style: none; display: grid; gap: 0.75rem; margin-top: 1.5rem; }
-  .taxonomy-item {
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    padding: 1rem 1.25rem;
-    min-height: 2.75rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: box-shadow 0.2s;
-  }
-  .taxonomy-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-  .taxonomy-item a { color: var(--color-text); text-decoration: none; font-weight: 500; }
-  .taxonomy-item a:hover { color: var(--color-primary); }
-  .taxonomy-count {
-    background: #f3f4f6;
-    color: var(--color-muted);
-    font-size: 0.875rem;
-    padding: 0.15rem 0.6rem;
-    border-radius: 12px;
-    font-weight: 600;
-  }
-</style>
+{{ $taxCSS := resources.Get "css/taxonomy.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $taxCSS.RelPermalink }}">
 
 <ul class="taxonomy-list">
   {{- range .Pages }}

@@ -1,5 +1,11 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { put } from "@vercel/blob";
+import {
+  createRateLimitMap,
+  isRateLimited,
+  getClientIp,
+} from "./lib/rate-limit.js";
+import { getAllowedOrigins } from "./lib/cors.js";
 
 // Disable default body parsing so we can read raw file bytes
 export const config = {
@@ -8,35 +14,30 @@ export const config = {
   },
 };
 
-// --- Rate limiting ---
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const rateLimitMap = createRateLimitMap();
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 20;
 
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(ip);
+// Magic byte signatures for image types
+const MAGIC_BYTES: ReadonlyMap<string, readonly number[][]> = new Map([
+  ["image/jpeg", [[0xff, 0xd8, 0xff]]],
+  ["image/jpg", [[0xff, 0xd8, 0xff]]],
+  ["image/png", [[0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]]],
+  [
+    "image/gif",
+    [
+      [0x47, 0x49, 0x46, 0x38, 0x37, 0x61],
+      [0x47, 0x49, 0x46, 0x38, 0x39, 0x61],
+    ],
+  ],
+]);
 
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return false;
-  }
-
-  const updated = { count: entry.count + 1, resetAt: entry.resetAt };
-  rateLimitMap.set(ip, updated);
-  return updated.count > RATE_LIMIT_MAX;
-}
-
-// --- CORS helpers ---
-function getAllowedOrigins(): readonly string[] {
-  const origins: string[] = ["https://ai-weeks.ch"];
-  const vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL;
-  if (vercelUrl) origins.push(`https://${vercelUrl}`);
-  const vercelBranchUrl = process.env.VERCEL_BRANCH_URL;
-  if (vercelBranchUrl) origins.push(`https://${vercelBranchUrl}`);
-  const vercelDeployUrl = process.env.VERCEL_URL;
-  if (vercelDeployUrl) origins.push(`https://${vercelDeployUrl}`);
-  return origins;
+function validateMagicBytes(buffer: Buffer, contentType: string): boolean {
+  const signatures = MAGIC_BYTES.get(contentType);
+  if (!signatures) return false;
+  return signatures.some((sig) =>
+    sig.every((byte, i) => buffer.length > i && buffer[i] === byte),
+  );
 }
 
 const ALLOWED_CONTENT_TYPES = new Set([
@@ -68,10 +69,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Rate limiting
-  const ip =
-    (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ??
-    "unknown";
-  if (isRateLimited(ip)) {
+  const ip = getClientIp(
+    req.headers as Record<string, string | string[] | undefined>,
+  );
+  if (isRateLimited(rateLimitMap, ip, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS)) {
     res.setHeader("Retry-After", "60");
     res.status(429).json({
       error: "Too many uploads. Please try again in a minute.",
@@ -106,14 +107,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
-    // Generate a safe pathname using a random ID
+    // Validate magic bytes match declared content type
+    if (!validateMagicBytes(body, contentType)) {
+      res.status(400).json({
+        error: "File content does not match declared type.",
+      });
+      return;
+    }
+
+    // Generate a safe pathname using a cryptographic random ID
     const ext =
       contentType === "image/png"
         ? "png"
         : contentType === "image/gif"
           ? "gif"
           : "jpg";
-    const safeId = Math.random().toString(36).slice(2, 14);
+    const safeId = crypto.randomUUID().replace(/-/g, "").slice(0, 16);
     const pathname = `event-images/${safeId}.${ext}`;
 
     const blob = await put(pathname, body, {
