@@ -188,23 +188,49 @@
     applyFilters();
   };
 
+  // --- HTML escaping ---
+  function escapeHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   // --- List view ---
   function renderListView() {
     var events = getFilteredEvents();
     var tbody = document.getElementById('upcoming-list-body');
-    var html = '';
+    tbody.innerHTML = '';
     events.forEach(function(ev) {
+      var tr = document.createElement('tr');
+
+      var tdDate = document.createElement('td');
+      tdDate.className = 'date-col';
+      var time = document.createElement('time');
+      time.setAttribute('datetime', ev.date);
       var parts = ev.date.split('-');
       var d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
       var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      var formatted = d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
-      html += '<tr>'
-        + '<td class="date-col"><time datetime="' + ev.date + '">' + formatted + '</time></td>'
-        + '<td><a href="' + ev.href + '">' + ev.name.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</a></td>'
-        + '<td class="city-col">' + (ev.city || '') + '</td>'
-        + '</tr>';
+      time.textContent = d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+      tdDate.appendChild(time);
+
+      var tdName = document.createElement('td');
+      var link = document.createElement('a');
+      link.setAttribute('href', ev.href);
+      link.textContent = ev.name;
+      tdName.appendChild(link);
+
+      var tdCity = document.createElement('td');
+      tdCity.className = 'city-col';
+      tdCity.textContent = ev.city || '';
+
+      tr.appendChild(tdDate);
+      tr.appendChild(tdName);
+      tr.appendChild(tdCity);
+      tbody.appendChild(tr);
     });
-    tbody.innerHTML = html;
   }
 
   // --- Calendar view ---
@@ -294,7 +320,7 @@
       var dayEvents = eventsByDate[dateStr] || [];
       html += '<div class="calendar-day"><div class="day-number">' + d + '</div>';
       dayEvents.forEach(function(ev) {
-        html += '<a class="cal-event' + (ev.featured ? ' featured' : '') + '" href="' + ev.href + '" title="' + ev.name.replace(/"/g, '&quot;') + '">' + ev.name + '</a>';
+        html += '<a class="cal-event' + (ev.featured ? ' featured' : '') + '" href="' + escapeHtml(ev.href) + '" title="' + escapeHtml(ev.name) + '">' + escapeHtml(ev.name) + '</a>';
       });
       html += '</div>';
     }
