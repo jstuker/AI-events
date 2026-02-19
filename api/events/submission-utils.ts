@@ -201,17 +201,7 @@ export function toSlug(name: string): string {
 }
 
 export function generateUUID(): string {
-  const hex = "0123456789abcdef";
-  const segments = [8, 4, 4, 4, 12];
-  return segments
-    .map((len) => {
-      let s = "";
-      for (let i = 0; i < len; i++) {
-        s += hex[Math.floor(Math.random() * 16)];
-      }
-      return s;
-    })
-    .join("-");
+  return crypto.randomUUID();
 }
 
 export function yamlString(value: string): string {
@@ -222,7 +212,10 @@ export function yamlString(value: string): string {
   return value;
 }
 
-export function buildContentFile(data: SubmissionData, eventId: string): string {
+export function buildContentFile(
+  data: SubmissionData,
+  eventId: string,
+): string {
   const now = new Date().toISOString();
   const slug = toSlug(data.event_name);
 
