@@ -22,25 +22,25 @@ defaultContentLanguageInSubdir = false
     languageCode = 'en'
     languageName = 'English'
     weight = 1
-    title = 'Swiss {ai} Weeks — Events 2026'
+    title = 'Swiss {ai} Events 2026'
   [languages.de]
     languageCode = 'de'
     languageName = 'Deutsch'
     weight = 2
     disabled = true
-    title = 'Swiss {ai} Weeks — Events 2026'
+    title = 'Swiss {ai} Events 2026'
   [languages.fr]
     languageCode = 'fr'
     languageName = 'Français'
     weight = 3
     disabled = true
-    title = 'Swiss {ai} Weeks — Événements'
+    title = 'Swiss {ai} Événements 2026'
   [languages.it]
     languageCode = 'it'
     languageName = 'Italiano'
     weight = 4
     disabled = true
-    title = 'Swiss {ai} Weeks — Eventi'
+    title = 'Swiss {ai} Eventi 2026'
 
 # Permalinks for events
 [permalinks]
