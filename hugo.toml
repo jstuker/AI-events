@@ -1,5 +1,5 @@
 baseURL = '/'
-title = 'Swiss {ai} Weeks — Events 2026'
+title = 'Swiss {ai} Events 2026'
 copyright = 'Event data published under CC-BY 4.0.'
 buildFuture = true
 removePathAccents = true
