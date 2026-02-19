@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Swiss {ai} Weeks Events Application — the definitive source of AI events in Switzerland. A Hugo static site deployed on Vercel, with event data stored as Markdown/YAML content files in this Git repository. The full specification lives in `pm/SaiW26 Events App Specification v1 16 Feb 26.md`.
+Swiss {ai} Events Application — the definitive source of AI events in Switzerland. A Hugo static site deployed on Vercel, with event data stored as Markdown/YAML content files in this Git repository. The full specification lives in `pm/SaiW26 Events App Specification v1 16 Feb 26.md`.
 
 ## Build & Development Commands
 
@@ -37,6 +37,14 @@ Output directory: `public/` (Hugo site + `public/admin/` for admin panel)
 - **Deployment**: Vercel auto-deploys on push to `main`; PRs get preview deployments
 - **Domain**: `ai-weeks.ch/events`
 - **Reference implementation**: [massalia.events](https://github.com/jstuker/massalia.events) — built with Claude Code, use as pattern reference
+
+
+## Technology Decision: The admin panel and submission application will be built with:
+
+- TypeScript for type safety
+- React as the UI framework
+- Tailwind CSS for styling
+
 
 ## Data Model
 
