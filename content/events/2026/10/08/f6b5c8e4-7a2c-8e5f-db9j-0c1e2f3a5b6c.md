@@ -5,7 +5,7 @@ slug: zurich-generative-ai-meetup
 status: published
 source: form
 created_at: 2026-02-17T13:00:00+01:00
-updated_at: 2026-02-17T10:34:01.431Z
+updated_at: 2026-02-19T08:55:21.774Z
 event_name: Zurich Generative AI Meetup
 event_description: "Monthly community meetup for generative AI enthusiasts. This month: building production-ready RAG systems and fine-tuning open-source LLMs."
 event_url: https://example.com/zurich-genai-meetup
@@ -26,7 +26,8 @@ organizer_name: Zurich AI Community
 organizer_url: https://example.com/zurich-ai
 contact_name: Lisa Chen
 contact_email: lisa@example.com
-featured: false
+featured: true
+featured_type: larger_card
 tags:
   - meetup
   - generative AI
