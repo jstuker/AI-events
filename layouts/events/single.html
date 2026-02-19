@@ -86,63 +86,8 @@
 {{ end }}
 
 {{ define "main" }}
-<style>
-  .event-detail { max-width: 800px; }
-  .event-detail-image {
-    aspect-ratio: 16 / 9;
-    width: 100%;
-    display: block;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    background: #e5e7eb;
-  }
-  .event-detail h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-  .event-header-meta { color: var(--color-muted); font-size: 0.875rem; margin-bottom: 1.5rem; }
-  .event-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; padding: 1rem; background: #f9fafb; border-radius: 8px; }
-  .event-info dt { font-weight: 600; font-size: 0.75rem; text-transform: uppercase; color: var(--color-muted); }
-  .event-info dd { margin-top: 0.25rem; }
-  .event-body { line-height: 1.8; }
-  .event-body h2 { margin-top: 1.5rem; margin-bottom: 0.5rem; }
-  .event-body ul, .event-body ol { margin-left: 1.5rem; margin-bottom: 1rem; }
-  .event-cta { display: inline-block; background: var(--color-primary); color: #fff; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 1.5rem; }
-  .event-cta:hover { opacity: 0.9; }
-  .badge-large { display: inline-block; background: var(--color-featured); color: #fff; font-size: 0.875rem; padding: 0.25rem 0.75rem; border-radius: 4px; font-weight: 600; margin-bottom: 0.5rem; }
-  .event-tags { margin-top: 1rem; }
-  .event-tags .tag { display: inline-block; background: #f3f4f6; color: var(--color-muted); font-size: 0.8125rem; padding: 0.2rem 0.6rem; border-radius: 4px; margin-right: 0.25rem; text-decoration: none; }
-  .event-tags .tag:hover { background: #e5e7eb; }
-
-  /* Social share buttons */
-  .share-section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border); }
-  .share-section h3 { font-size: 0.875rem; text-transform: uppercase; color: var(--color-muted); font-weight: 600; margin-bottom: 0.75rem; }
-  .share-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-  .share-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.5rem 0.875rem;
-    border-radius: 6px;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    text-decoration: none;
-    color: #fff;
-    transition: opacity 0.15s;
-  }
-  .share-btn:hover { opacity: 0.85; }
-  .share-btn.twitter { background: #1da1f2; }
-  .share-btn.linkedin { background: #0a66c2; }
-  .share-btn.facebook { background: #1877f2; }
-  .share-btn.email { background: #6b7280; }
-
-  @media (max-width: 600px) {
-    .event-detail h1 { font-size: 1.5rem; }
-    .event-info { grid-template-columns: 1fr 1fr; gap: 0.75rem; padding: 0.75rem; }
-    .event-cta { display: block; width: 100%; text-align: center; }
-    .share-buttons { flex-direction: column; }
-    .share-btn { justify-content: center; min-height: 2.75rem; }
-    .event-tags .tag { margin-bottom: 0.25rem; }
-  }
-</style>
+{{ $css := resources.Get "css/event-detail.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}">
 
 <article class="event-detail">
   <a href="{{ "/" | relURL }}" class="back-link">&larr; All Events</a>
